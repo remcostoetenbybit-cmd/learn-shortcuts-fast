@@ -100,15 +100,15 @@ export interface ShowcaseConfig {
   useCases: string;
 }
 
-// ─── Default placeholder config ──────────────────────────────────────────────
+// ─── Default config: @remcostoeten/use-shortcut v1.3.0 ──────────────────────
 
 const showcaseConfig: ShowcaseConfig = {
-  packageName: "PACKAGE",
+  packageName: "use-shortcut",
 
-  tagline: "lightweight react utility",
+  tagline: "chainable keyboard shortcuts for react",
 
   description:
-    "a react utility that does something great. zero dependencies. works with next.js, vite, remix.",
+    "beautiful, typesafe keyboard shortcuts with chainable syntax, sequences, scopes & recording. zero dependencies.",
 
   author: {
     name: "Remco Stoeten",
@@ -118,88 +118,128 @@ const showcaseConfig: ShowcaseConfig = {
 
   navLinks: [
     { label: "docs", url: "#" },
-    { label: "blog", url: "#" },
-    { label: "changelog", url: "#" },
+    { label: "playground", url: "https://use-shortcuts.vercel.app" },
+    { label: "changelog", url: "https://github.com/remcostoeten/use-shortcut/releases" },
   ],
 
   links: {
-    npm: "https://www.npmjs.com/package/package-name",
-    github: "https://github.com/remcostoeten/package-name",
+    npm: "https://www.npmjs.com/package/@remcostoeten/use-shortcut",
+    github: "https://github.com/remcostoeten/use-shortcut",
   },
 
   ctas: [
-    { label: "get started", url: "#", primary: true },
-    { label: "explore the docs", url: "#" },
+    { label: "get started", url: "#install", primary: true },
+    { label: "explore the docs", url: "https://use-shortcuts.vercel.app" },
   ],
 
   worksWith: [
     { label: "react", url: "https://react.dev/" },
     { label: "next.js", url: "https://nextjs.org/" },
-    { label: "tailwind", url: "https://tailwindcss.com/" },
     { label: "vite", url: "https://vitejs.dev/" },
+    { label: "remix", url: "https://remix.run/" },
   ],
 
   badges: {
-    version: "v0.0.0",
-    downloads: "0/wk",
-    bundleSize: "0kb",
+    version: "v1.3.0",
+    downloads: "—",
+    bundleSize: "~3kb",
   },
 
   primaryColor: undefined,
 
   why: {
     paragraphs: [
-      "every app needs this. most solutions are either too heavy, require external services, or are poorly typed. this package solves it with zero dependencies and full type safety.",
-      "same input = same output. always. no api calls, no storage, no randomness. just deterministic, reliable behavior that works offline.",
+      "every app needs keyboard shortcuts. most solutions are either too heavy, poorly typed, or have stale closure bugs. use-shortcut solves all of it with a chainable api, perfect typescript intellisense, and zero dependencies.",
+      "same input = same output. no api calls, no storage, no randomness. just deterministic, reliable behavior that works offline. mod resolves to ⌘ on mac and ctrl on windows — automatically.",
     ],
   },
 
   features: [
-    { value: "0kb", label: "no external assets", description: "tree-shakeable with zero runtime overhead." },
-    { value: "api", label: "route handler", description: "generate images on the fly with a simple endpoint." },
-    { value: "a11y", label: "accessible by default", description: "follows wai-aria patterns. keyboard navigable." },
-    { value: "ts", label: "fully typed", description: "complete type inference. no @types needed." },
+    { value: "~3kb", label: "tiny & tree-shakeable", description: "zero runtime overhead. only react as peer dependency." },
+    { value: "$.then()", label: "sequences & chords", description: "multi-step bindings like g → d. github-style navigation shortcuts." },
+    { value: "scopes", label: "named scopes", description: "activate/deactivate shortcut contexts like editor, navigation, modal." },
+    { value: "ts", label: "perfect typescript", description: "complete type inference at every chain step. no @types needed." },
+    { value: "cli", label: "scaffold & init", description: "shadcn-style init or full architecture scaffold with provider, registry & scopes." },
+    { value: "⏺", label: "recording mode", description: "capture the next key combo for custom keybind UIs." },
   ],
 
   apiProps: [
-    { name: "option", type: "string", default: '""', description: "placeholder option description." },
-    { name: "enabled", type: "boolean", default: "true", description: "whether the feature is enabled." },
-    { name: "delay", type: "number", default: "0", description: "delay in ms before action triggers." },
-    { name: "callback", type: "(value: T) => void", default: "—", description: "callback on completion." },
-    { name: "target", type: "HTMLElement | null", default: "document", description: "dom element to attach to." },
+    { name: "debug", type: "boolean", default: "false", description: "log all shortcuts and key presses to console." },
+    { name: "delay", type: "number", default: "0", description: "global debounce delay in ms before triggering handler." },
+    { name: "ignoreInputs", type: "boolean", default: "true", description: "skip shortcuts when focus is in input/textarea/select." },
+    { name: "disabled", type: "boolean", default: "false", description: "disable all shortcuts registered by this hook." },
+    { name: "eventType", type: '"keydown" | "keyup"', default: '"keydown"', description: "which keyboard event to listen for." },
+    { name: "target", type: "EventTarget", default: "window", description: "dom element or window to attach the listener to." },
+    { name: "activeScopes", type: "string | string[]", default: "—", description: "named scopes that are initially active." },
+    { name: "sequenceTimeout", type: "number", default: "800", description: "ms allowed between sequence steps before reset." },
+    { name: "conflictWarnings", type: "boolean", default: "false", description: "warn when two shortcuts have overlapping bindings." },
+    { name: "onConflict", type: "(conflict) => void", default: "—", description: "callback when a shortcut conflict is detected." },
+    { name: "eventFilter", type: "(event) => boolean", default: "—", description: "global filter to block events (e.g. composing)." },
   ],
 
   codeExamples: [
     {
-      title: "how to use with react?",
-      code: `import { usePackage } from "package-name"
+      title: "basic usage",
+      code: `import { useShortcut } from "@remcostoeten/use-shortcut"
 
 function App() {
-  const result = usePackage({
-    option: "value",
-    enabled: true,
-  })
+  const $ = useShortcut()
 
-  return <div>{result.output}</div>
+  $.cmd.key("s").on(() => save())
+  $.mod.key("k").on(() => search())
+  $.key("/").except("typing").on(() => focusSearch())
+
+  return <div>press ⌘+S to save</div>
 }`,
       language: "tsx",
     },
     {
-      title: "need a different setup?",
-      code: `import { createInstance } from "package-name"
+      title: "sequences & scopes",
+      code: `const $ = useShortcut({ activeScopes: "navigation" })
 
-const instance = createInstance({
-  target: document.body,
-  option: "value",
-})
+// github-style: press g, then d
+$.key("g").then("d").on(() => goToDashboard())
 
-instance.enable()`,
+// scoped shortcuts
+$.in("editor").mod.key("s").on(() => saveFile())
+$.in("navigation").key("g").then("p").on(() => goToProfile())
+
+// switch scopes
+$.setScopes("editor")
+$.enableScope("navigation")`,
       language: "tsx",
+    },
+    {
+      title: "recording & maps",
+      code: `import { useShortcut, useShortcutMap } from "@remcostoeten/use-shortcut"
+
+// record next key combo for custom keybind UI
+const combo = await $.record({ timeoutMs: 5000 })
+
+// register many shortcuts at once
+useShortcutMap({
+  save: { keys: "mod+s", handler: () => save() },
+  undo: { keys: "mod+z", handler: () => undo() },
+  dashboard: { keys: ["g", "d"], handler: () => go() },
+})`,
+      language: "tsx",
+    },
+    {
+      title: "cli setup",
+      code: `# copy source files (shadcn-style)
+npx @remcostoeten/use-shortcut init
+
+# scaffold full architecture
+npx @remcostoeten/use-shortcut scaffold
+
+# react scaffold with custom path
+npx @remcostoeten/use-shortcut scaffold --framework react --target src`,
+      language: "bash",
     },
   ],
 
   useCases:
-    "dashboards, developer tools, productivity apps, games, accessibility overlays, command palettes — anywhere you need reliable, typed behavior.",
+    "command palettes, editor shortcuts, vim-style navigation, accessibility overlays, gaming controls, dashboard hotkeys, modal management, custom keybind UIs — anywhere you need reliable, typed keyboard shortcuts.",
 };
 
 export default showcaseConfig;
