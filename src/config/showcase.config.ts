@@ -5,6 +5,11 @@ import type { ReactNode } from "react";
  * Edit this file to customize all content, links, and theming.
  */
 
+export interface ShowcaseNavLink {
+  label: string;
+  url: string;
+}
+
 export interface ShowcaseFeature {
   value?: string;
   label: string;
@@ -24,9 +29,23 @@ export interface ShowcaseCodeExample {
   language?: string;
 }
 
+export interface ShowcaseCta {
+  label: string;
+  url: string;
+  primary?: boolean;
+}
+
+export interface ShowcaseWorksWithItem {
+  label: string;
+  url: string;
+}
+
 export interface ShowcaseConfig {
   /** Package display name (uppercase in hero) */
   packageName: string;
+
+  /** Tagline shown above the title in mono brackets, e.g. "[lightweight react utility]" */
+  tagline?: string;
 
   /** One-liner description shown below the title */
   description: string;
@@ -38,13 +57,20 @@ export interface ShowcaseConfig {
     url: string;
   };
 
+  /** Navigation links shown in navbar with bracket notation */
+  navLinks: ShowcaseNavLink[];
+
   /** External links */
   links: {
     npm: string;
     github: string;
-    docs?: string;
-    changelog?: string;
   };
+
+  /** Call-to-action buttons below hero */
+  ctas?: ShowcaseCta[];
+
+  /** "Works well with" framework badges */
+  worksWith?: ShowcaseWorksWithItem[];
 
   /** Badge metadata */
   badges: {
@@ -79,6 +105,8 @@ export interface ShowcaseConfig {
 const showcaseConfig: ShowcaseConfig = {
   packageName: "PACKAGE",
 
+  tagline: "lightweight react utility",
+
   description:
     "a react utility that does something great. zero dependencies. works with next.js, vite, remix.",
 
@@ -88,12 +116,28 @@ const showcaseConfig: ShowcaseConfig = {
     url: "https://github.com/remcostoeten",
   },
 
+  navLinks: [
+    { label: "docs", url: "#" },
+    { label: "blog", url: "#" },
+    { label: "changelog", url: "#" },
+  ],
+
   links: {
     npm: "https://www.npmjs.com/package/package-name",
     github: "https://github.com/remcostoeten/package-name",
-    docs: "#",
-    changelog: "#",
   },
+
+  ctas: [
+    { label: "get started", url: "#", primary: true },
+    { label: "explore the docs", url: "#" },
+  ],
+
+  worksWith: [
+    { label: "react", url: "https://react.dev/" },
+    { label: "next.js", url: "https://nextjs.org/" },
+    { label: "tailwind", url: "https://tailwindcss.com/" },
+    { label: "vite", url: "https://vitejs.dev/" },
+  ],
 
   badges: {
     version: "v0.0.0",
@@ -101,10 +145,7 @@ const showcaseConfig: ShowcaseConfig = {
     bundleSize: "0kb",
   },
 
-  // Override the default orange accent — set to any HSL string
-  // primaryColor: "0 84% 60%",   // red example
-  // primaryColor: "142 76% 36%", // green example
-  primaryColor: undefined, // uses default from CSS (orange #fe5101)
+  primaryColor: undefined,
 
   why: {
     paragraphs: [

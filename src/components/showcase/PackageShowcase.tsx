@@ -1,4 +1,5 @@
 import { ReactNode, useEffect } from "react";
+import { Navbar } from "./Navbar";
 import { InstallCommand } from "./InstallCommand";
 import { DemoSection } from "./DemoSection";
 import { FeatureGrid } from "./FeatureGrid";
@@ -6,8 +7,10 @@ import { ApiTable } from "./ApiTable";
 import { CodeExamples } from "./CodeExamples";
 import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
+import { WorksWith } from "./WorksWith";
 import type { ShowcaseConfig } from "@/config/showcase.config";
 import defaultConfig from "@/config/showcase.config";
+import { ArrowRight } from "lucide-react";
 
 interface PackageShowcaseProps {
   config?: Partial<ShowcaseConfig>;
@@ -38,30 +41,56 @@ export function PackageShowcase({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Navbar */}
+      <Navbar
+        packageName={config.packageName}
+        navLinks={config.navLinks}
+        githubUrl={config.links.github}
+      />
+
+      {/* Centered paper column */}
       <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative">
         {/* Header */}
-        <header className="border-b border-border px-8 pt-16 pb-10 text-center">
-          <h1 className="font-display text-5xl font-black uppercase tracking-[0.3em] text-foreground sm:text-6xl">
-            {config.packageName}
+        <header className="border-b border-border px-8 pt-16 pb-10">
+          {config.tagline && (
+            <p className="font-mono text-xs text-primary mb-6">
+              [{config.tagline}]
+            </p>
+          )}
+          <h1 className="font-display text-4xl font-black lowercase tracking-tight text-foreground sm:text-5xl leading-[1.1]">
+            {config.description}
           </h1>
-          <p className="mt-3 font-mono text-xs text-muted-foreground">
-            by{" "}
-            <a href={config.author.url} className="text-foreground hover:text-primary transition-colors">
-              {config.author.handle}
-            </a>
-          </p>
+
+          {/* CTAs */}
+          {config.ctas && config.ctas.length > 0 && (
+            <div className="flex items-center gap-4 mt-8">
+              {config.ctas.map((cta) =>
+                cta.primary ? (
+                  <a
+                    key={cta.label}
+                    href={cta.url}
+                    className="inline-flex items-center gap-2 rounded-md bg-foreground px-4 py-2.5 font-mono text-xs font-medium text-background hover:bg-foreground/90 transition-colors"
+                  >
+                    {cta.label}
+                  </a>
+                ) : (
+                  <a
+                    key={cta.label}
+                    href={cta.url}
+                    className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {cta.label}
+                    <ArrowRight className="h-3 w-3" />
+                  </a>
+                )
+              )}
+            </div>
+          )}
         </header>
 
         <div className="flex flex-col gap-0">
-          {/* Description */}
-          <div className="px-8 py-10">
-            <p className="text-sm leading-relaxed text-muted-foreground lowercase">
-              {config.description}
-            </p>
-          </div>
-
           {/* Install — dashed breakout */}
-          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
             <InstallCommand packageName={pkgLower} />
           </div>
 
@@ -70,8 +99,11 @@ export function PackageShowcase({
             <DemoSection>{demoContent}</DemoSection>
           </div>
 
-          {/* Badge bar */}
-          <div className="px-8 py-6">
+          {/* Works with + Badge bar */}
+          <div className="px-8 py-6 flex flex-col gap-4">
+            {config.worksWith && config.worksWith.length > 0 && (
+              <WorksWith items={config.worksWith} />
+            )}
             <BadgeBar
               packageName={pkgLower}
               npmUrl={config.links.npm}
@@ -83,7 +115,7 @@ export function PackageShowcase({
           </div>
 
           {/* Why section */}
-          <div className="px-8 py-10">
+          <div className="px-8 py-10 border-t border-border">
             <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-4">
               why {pkgLower}?
             </h2>
