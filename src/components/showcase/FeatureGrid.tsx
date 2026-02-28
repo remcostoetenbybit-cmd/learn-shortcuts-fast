@@ -20,11 +20,12 @@ const defaultFeatures: Feature[] = [
 
 export function FeatureGrid({ features = defaultFeatures }: FeatureGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
       {features.map((f) => (
-        <div key={f.label} className="flex flex-col gap-1">
+        <div key={f.label} className="flex flex-col gap-0.5">
           <span className="font-mono text-sm font-bold text-foreground">{f.value || f.label}</span>
-          <span className="text-xs text-muted-foreground">{f.label}</span>
+          <span className="text-xs font-medium text-foreground/80 lowercase">{f.label}</span>
+          <span className="text-[11px] leading-snug text-muted-foreground lowercase mt-0.5">{f.description}</span>
         </div>
       ))}
     </div>

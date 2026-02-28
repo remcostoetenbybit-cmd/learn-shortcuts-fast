@@ -51,25 +51,25 @@ export function PackageShowcase({
       {/* Centered paper column */}
       <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative">
         {/* Header */}
-        <header className="border-b border-border px-8 pt-16 pb-10">
+        <header className="border-b border-border px-8 pt-12 pb-8">
           {config.tagline && (
-            <p className="font-mono text-xs text-primary mb-6">
+            <p className="font-mono text-xs text-primary mb-4">
               [{config.tagline}]
             </p>
           )}
-          <h1 className="font-display text-4xl font-black lowercase tracking-tight text-foreground sm:text-5xl leading-[1.1]">
+          <h1 className="font-display text-2xl font-bold lowercase tracking-tight text-foreground sm:text-3xl leading-[1.2]">
             {config.description}
           </h1>
 
           {/* CTAs */}
           {config.ctas && config.ctas.length > 0 && (
-            <div className="flex items-center gap-4 mt-8">
+            <div className="flex items-center gap-4 mt-6">
               {config.ctas.map((cta) =>
                 cta.primary ? (
                   <a
                     key={cta.label}
                     href={cta.url}
-                    className="inline-flex items-center gap-2 rounded-md bg-foreground px-4 py-2.5 font-mono text-xs font-medium text-background hover:bg-foreground/90 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-md bg-foreground px-3.5 py-2 font-mono text-xs font-medium text-background hover:bg-foreground/90 transition-colors"
                   >
                     {cta.label}
                   </a>
@@ -90,12 +90,12 @@ export function PackageShowcase({
 
         <div className="flex flex-col gap-0">
           {/* Install — dashed breakout */}
-          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
-            <InstallCommand packageName={pkgLower} />
+          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+            <InstallCommand packageName={`@remcostoeten/${pkgLower}`} />
           </div>
 
           {/* Demo — dashed breakout */}
-          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <DemoSection>{demoContent}</DemoSection>
           </div>
 
@@ -115,38 +115,38 @@ export function PackageShowcase({
           </div>
 
           {/* Why section */}
-          <div className="px-8 py-10 border-t border-border">
-            <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-4">
+          <div className="px-8 py-8 border-t border-border">
+            <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-3">
               why {pkgLower}?
             </h2>
             {config.why.paragraphs.map((p, i) => (
-              <p key={i} className="text-sm leading-relaxed text-muted-foreground lowercase mb-6 last:mb-0">
+              <p key={i} className="text-xs leading-relaxed text-muted-foreground lowercase mb-4 last:mb-0">
                 {p}
               </p>
             ))}
           </div>
 
           {/* Feature grid — dashed breakout */}
-          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <FeatureGrid features={config.features} />
           </div>
 
           {/* Code examples */}
-          <div className="px-8 py-10">
+          <div className="px-8 py-8">
             <CodeExamples examples={config.codeExamples} />
           </div>
 
           {/* API reference — dashed breakout */}
-          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <ApiTable props={config.apiProps} />
           </div>
 
           {/* Use cases */}
-          <div className="px-8 py-10">
-            <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-3">
+          <div className="px-8 py-8">
+            <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-2">
               use cases
             </h2>
-            <p className="text-sm text-muted-foreground lowercase">
+            <p className="text-xs text-muted-foreground lowercase leading-relaxed">
               {config.useCases}
             </p>
           </div>

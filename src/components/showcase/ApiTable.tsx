@@ -21,7 +21,7 @@ const defaultProps: ApiProp[] = [
 export function ApiTable({ title = "props", props = defaultProps }: ApiTableProps) {
   return (
     <div className="w-full">
-      <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-6">
+      <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-4">
         {title}
       </h2>
 
