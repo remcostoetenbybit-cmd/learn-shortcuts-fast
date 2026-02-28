@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -54,10 +55,14 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
   }
 
   code, pre, .font-mono {
     font-family: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .font-display {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
   }
 }
