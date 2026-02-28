@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { SyntaxHighlight } from "./SyntaxHighlight";
 
 interface CodeBlockProps {
   title?: string;
@@ -7,7 +8,7 @@ interface CodeBlockProps {
   language?: string;
 }
 
-export function CodeBlock({ title, code, language = "tsx" }: CodeBlockProps) {
+export function CodeBlock({ title, code }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -21,14 +22,33 @@ export function CodeBlock({ title, code, language = "tsx" }: CodeBlockProps) {
       {title && (
         <div className="flex items-center justify-between mb-2">
           <span className="font-mono text-xs lowercase text-muted-foreground">{title}</span>
-          <button onClick={copy} className="text-muted-foreground transition-colors hover:text-foreground">
-            {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+          <button
+            onClick={copy}
+            className="relative h-6 w-6 flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Copy code"
+          >
+            <Copy
+              className={`h-3.5 w-3.5 absolute transition-all duration-300 ${
+                copied
+                  ? "opacity-0 scale-50 rotate-12"
+                  : "opacity-100 scale-100 rotate-0"
+              }`}
+              style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+            />
+            <Check
+              className={`h-3.5 w-3.5 absolute text-primary transition-all duration-300 ${
+                copied
+                  ? "opacity-100 scale-100 rotate-0"
+                  : "opacity-0 scale-50 -rotate-12"
+              }`}
+              style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+            />
           </button>
         </div>
       )}
       <div className="overflow-x-auto rounded-md border border-border bg-card p-4">
         <pre>
-          <code className="font-mono text-sm leading-relaxed text-foreground/80">{code}</code>
+          <SyntaxHighlight code={code} />
         </pre>
       </div>
     </div>

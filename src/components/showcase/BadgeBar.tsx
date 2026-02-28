@@ -4,16 +4,21 @@ interface BadgeBarProps {
   packageName?: string;
   npmUrl?: string;
   githubUrl?: string;
+  version?: string;
+  downloads?: string;
+  bundleSize?: string;
 }
 
 export function BadgeBar({
   packageName = "package-name",
   npmUrl = "#",
   githubUrl = "#",
+  version = "v0.0.0",
+  downloads = "0/wk",
+  bundleSize = "0kb",
 }: BadgeBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* npm badge placeholder */}
       <a
         href={npmUrl}
         target="_blank"
@@ -21,20 +26,17 @@ export function BadgeBar({
         className="inline-flex items-center gap-1.5 rounded border border-dashed border-border px-2.5 py-1 font-mono text-[10px] text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
       >
         npm
-        <span className="text-primary">v0.0.0</span>
+        <span className="text-primary">{version}</span>
       </a>
 
-      {/* downloads badge placeholder */}
       <span className="inline-flex items-center gap-1.5 rounded border border-dashed border-border px-2.5 py-1 font-mono text-[10px] text-muted-foreground">
-        ↓ 0/wk
+        ↓ {downloads}
       </span>
 
-      {/* bundle size placeholder */}
       <span className="inline-flex items-center gap-1.5 rounded border border-dashed border-border px-2.5 py-1 font-mono text-[10px] text-muted-foreground">
-        0kb
+        {bundleSize}
       </span>
 
-      {/* github link */}
       <a
         href={githubUrl}
         target="_blank"

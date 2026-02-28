@@ -42,13 +42,12 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
   return (
     <div className="w-full">
       <div ref={tabsRef} className="relative flex items-center gap-1 mb-0">
-        {/* Sliding indicator */}
         <div
           className="absolute bottom-0 h-[2px] bg-primary transition-all duration-300"
           style={{
             left: indicatorStyle.left,
             width: indicatorStyle.width,
-            transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+            transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
           }}
         />
         {managers.map((m) => (
@@ -61,18 +60,33 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             }`}
-            style={{ transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
           >
             [{m.label}]
           </button>
         ))}
       </div>
       <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3 mt-1 overflow-hidden">
-        <code className="font-mono text-sm text-muted-foreground transition-opacity duration-200" style={{ transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}>
+        <code className="font-mono text-sm text-muted-foreground">
           <span className="text-primary">$</span> {command}
         </code>
-        <button onClick={copy} className="text-muted-foreground transition-colors hover:text-foreground ml-4 shrink-0">
-          {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+        <button
+          onClick={copy}
+          className="relative h-6 w-6 flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground ml-4 shrink-0"
+          aria-label="Copy install command"
+        >
+          <Copy
+            className={`h-4 w-4 absolute transition-all duration-300 ${
+              copied ? "opacity-0 scale-50 rotate-12" : "opacity-100 scale-100 rotate-0"
+            }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          />
+          <Check
+            className={`h-4 w-4 absolute text-primary transition-all duration-300 ${
+              copied ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-50 -rotate-12"
+            }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          />
         </button>
       </div>
     </div>
