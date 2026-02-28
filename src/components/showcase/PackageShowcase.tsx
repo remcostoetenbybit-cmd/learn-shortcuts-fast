@@ -5,6 +5,7 @@ import { FeatureGrid } from "./FeatureGrid";
 import { ApiTable } from "./ApiTable";
 import { CodeExamples } from "./CodeExamples";
 import { FooterSection } from "./FooterSection";
+import { BadgeBar } from "./BadgeBar";
 
 interface PackageShowcaseProps {
   packageName?: string;
@@ -29,7 +30,7 @@ export function PackageShowcase({
   return (
     <div className="min-h-screen bg-background">
       {/* Centered paper column */}
-      <div className="mx-auto max-w-2xl border-x border-border min-h-screen">
+      <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative">
         {/* Header */}
         <header className="border-b border-border px-8 pt-16 pb-10 text-center">
           <h1 className="font-display text-5xl font-black uppercase tracking-[0.3em] text-foreground sm:text-6xl">
@@ -44,20 +45,31 @@ export function PackageShowcase({
         </header>
 
         {/* Content */}
-        <div className="flex flex-col gap-12 px-8 py-10">
+        <div className="flex flex-col gap-0">
           {/* Description */}
-          <p className="text-sm leading-relaxed text-muted-foreground lowercase">
-            {description}
-          </p>
+          <div className="px-8 py-10">
+            <p className="text-sm leading-relaxed text-muted-foreground lowercase">
+              {description}
+            </p>
+          </div>
 
-          {/* Install */}
-          <InstallCommand packageName={packageName.toLowerCase()} />
+          {/* Install — dashed breakout */}
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+            <InstallCommand packageName={packageName.toLowerCase()} />
+          </div>
 
-          {/* Demo */}
-          <DemoSection>{demoContent}</DemoSection>
+          {/* Demo — dashed breakout */}
+          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+            <DemoSection>{demoContent}</DemoSection>
+          </div>
+
+          {/* Badge bar */}
+          <div className="px-8 py-6">
+            <BadgeBar packageName={packageName.toLowerCase()} />
+          </div>
 
           {/* Why section */}
-          <div>
+          <div className="px-8 py-10">
             <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-4">
               why {packageName.toLowerCase()}?
             </h2>
@@ -67,17 +79,25 @@ export function PackageShowcase({
             <p className="text-sm leading-relaxed text-muted-foreground lowercase mb-8">
               same input = same output. always. no api calls, no storage, no randomness. just deterministic, reliable behavior that works offline.
             </p>
+          </div>
+
+          {/* Feature grid — dashed breakout */}
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
             <FeatureGrid />
           </div>
 
           {/* Code examples */}
-          <CodeExamples />
+          <div className="px-8 py-10">
+            <CodeExamples />
+          </div>
 
-          {/* API reference */}
-          <ApiTable />
+          {/* API reference — dashed breakout */}
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-10 bg-card/30">
+            <ApiTable />
+          </div>
 
           {/* Use cases */}
-          <div>
+          <div className="px-8 py-10">
             <h2 className="font-display text-xl font-bold lowercase tracking-tight text-foreground mb-3">
               use cases
             </h2>
@@ -87,7 +107,9 @@ export function PackageShowcase({
           </div>
 
           {/* Footer */}
-          <FooterSection author={author || byline} authorUrl={authorUrl || bylineUrl} />
+          <div className="px-8 border-t border-dashed border-border">
+            <FooterSection author={author || byline} authorUrl={authorUrl || bylineUrl} />
+          </div>
         </div>
       </div>
     </div>
