@@ -6,7 +6,7 @@ interface InstallCommandProps {
 }
 
 const managers = [
-  { id: "npm", label: "npm", cmd: (pkg: string) => `npm install ${pkg}` },
+  { id: "npm", label: "npm", cmd: (pkg: string) => `npm i ${pkg}` },
   { id: "bun", label: "bun", cmd: (pkg: string) => `bun add ${pkg}` },
   { id: "pnpm", label: "pnpm", cmd: (pkg: string) => `pnpm add ${pkg}` },
   { id: "yarn", label: "yarn", cmd: (pkg: string) => `yarn add ${pkg}` },
@@ -25,27 +25,27 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
   };
 
   return (
-    <div className="inline-flex flex-col gap-0 rounded-lg border border-border bg-card overflow-hidden">
-      <div className="flex border-b border-border">
+    <div className="w-full">
+      <div className="flex items-center gap-1 mb-0">
         {managers.map((m) => (
           <button
             key={m.id}
             onClick={() => setActive(m.id)}
-            className={`px-4 py-2 text-xs font-mono lowercase transition-colors ${
+            className={`px-2.5 py-1 font-mono text-xs lowercase transition-colors rounded-sm ${
               active === m.id
-                ? "bg-secondary text-foreground"
+                ? "text-foreground bg-secondary"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {m.label}
+            [{m.label}]
           </button>
         ))}
       </div>
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3 mt-1">
         <code className="font-mono text-sm text-muted-foreground">
           <span className="text-primary">$</span> {command}
         </code>
-        <button onClick={copy} className="ml-auto text-muted-foreground transition-colors hover:text-foreground">
+        <button onClick={copy} className="text-muted-foreground transition-colors hover:text-foreground ml-4">
           {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
         </button>
       </div>
