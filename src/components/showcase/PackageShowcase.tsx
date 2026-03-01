@@ -4,6 +4,7 @@ import { InstallCommand } from "./InstallCommand";
 import { DemoSection } from "./DemoSection";
 import { FeatureGrid } from "./FeatureGrid";
 import { ApiTable } from "./ApiTable";
+import { ApiDocs } from "./ApiDocs";
 import { CodeExamples } from "./CodeExamples";
 import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
@@ -132,6 +133,11 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
           {/* Code examples */}
           <div className="px-8 py-8">
             <CodeExamples examples={config.codeExamples} />
+          </div>
+
+          {/* API deep dive */}
+          <div id="api-docs" className="border-y border-dashed border-border -mx-[1px] px-8 py-8">
+            <ApiDocs />
           </div>
 
           {/* API reference */}
