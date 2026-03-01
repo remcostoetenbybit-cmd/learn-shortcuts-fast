@@ -55,7 +55,7 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
             key={m.id}
             ref={(el) => { buttonRefs.current[m.id] = el; }}
             onClick={() => setActive(m.id)}
-            className={`px-2.5 py-1.5 font-mono text-xs lowercase transition-colors duration-300 rounded-sm ${
+            className={`px-2.5 py-1.5 font-mono text-xs lowercase transition-colors duration-300 ${
               active === m.id
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"
@@ -66,7 +66,7 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
           </button>
         ))}
       </div>
-      <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3 mt-1 overflow-hidden">
+      <div className="flex items-center justify-between border border-border bg-card px-4 py-3 mt-1 overflow-hidden">
         <code className="font-mono text-sm text-muted-foreground">
           <span className="text-primary">$</span> {command}
         </code>

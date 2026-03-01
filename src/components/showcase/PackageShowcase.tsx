@@ -41,13 +41,86 @@ export function PackageShowcase({
   const pkgLower = config.packageName.toLowerCase();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-x-clip">
       {/* Navbar */}
       <Navbar
         packageName={config.packageName}
         navLinks={config.navLinks}
         githubUrl={config.links.github}
       />
+
+      {/* Floating decorative elements outside the column */}
+      <div className="hidden lg:block pointer-events-none select-none" aria-hidden="true">
+        {/* Left side floaters */}
+        <div className="fixed top-[200px] left-[calc(50%-400px)] -translate-x-full">
+          <PixelHeading
+            as="h2"
+            mode="random"
+            autoPlay
+            cycleInterval={400}
+            className="text-4xl text-muted-foreground/10 rotate-[-8deg]"
+          >
+            pixel
+          </PixelHeading>
+        </div>
+        <div className="fixed top-[450px] left-[calc(50%-380px)] -translate-x-full">
+          <PixelHeading
+            as="h3"
+            mode="uniform"
+            autoPlay
+            cycleInterval={600}
+            className="text-2xl text-muted-foreground/8 rotate-[4deg]"
+          >
+            swap
+          </PixelHeading>
+        </div>
+        <div className="fixed top-[650px] left-[calc(50%-420px)] -translate-x-full">
+          <PixelHeading
+            as="h3"
+            mode="wave"
+            autoPlay
+            cycleInterval={300}
+            className="text-3xl text-muted-foreground/10 rotate-[-3deg]"
+          >
+            cycle
+          </PixelHeading>
+        </div>
+
+        {/* Right side floaters */}
+        <div className="fixed top-[280px] right-[calc(50%-400px)] translate-x-full">
+          <PixelHeading
+            as="h2"
+            mode="wave"
+            autoPlay
+            cycleInterval={350}
+            className="text-3xl text-muted-foreground/10 rotate-[6deg]"
+          >
+            heading
+          </PixelHeading>
+        </div>
+        <div className="fixed top-[520px] right-[calc(50%-390px)] translate-x-full">
+          <PixelHeading
+            as="h3"
+            mode="multi"
+            autoPlay
+            cycleInterval={500}
+            className="text-2xl text-muted-foreground/8 rotate-[-5deg]"
+          >
+            geist
+          </PixelHeading>
+        </div>
+        <div className="fixed top-[740px] right-[calc(50%-410px)] translate-x-full">
+          <PixelHeading
+            as="h3"
+            mode="random"
+            autoPlay
+            cycleInterval={250}
+            className="text-xl text-muted-foreground/10 rotate-[3deg]"
+          >
+            a11y
+          </PixelHeading>
+        </div>
+      </div>
 
       {/* Centered paper column */}
       <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative">
@@ -78,7 +151,7 @@ export function PackageShowcase({
                   <a
                     key={cta.label}
                     href={cta.url}
-                    className="inline-flex items-center gap-2 rounded-md bg-foreground px-3.5 py-2 font-mono text-xs font-medium text-background hover:bg-foreground/90 transition-colors"
+                    className="inline-flex items-center gap-2 bg-foreground px-3.5 py-2 font-mono text-xs font-medium text-background hover:bg-foreground/90 transition-colors"
                   >
                     {cta.label}
                   </a>
