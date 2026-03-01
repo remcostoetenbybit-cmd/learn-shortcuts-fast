@@ -103,12 +103,12 @@ export interface ShowcaseConfig {
 // ─── Default config: @remcostoeten/use-shortcut v1.3.0 ──────────────────────
 
 const showcaseConfig: ShowcaseConfig = {
-  packageName: "use-shortcut",
+  packageName: "pixel-heading-word",
 
-  tagline: "chainable keyboard shortcuts for react",
+  tagline: "whole-word pixel-font heading",
 
   description:
-    "beautiful, typesafe keyboard shortcuts with chainable syntax, sequences, scopes & recording. zero dependencies.",
+    "pixel-font heading that swaps between two fonts or cycles through all five on hover. uses geist pixel fonts with zero animation dependencies.",
 
   author: {
     name: "Remco Stoeten",
@@ -118,18 +118,18 @@ const showcaseConfig: ShowcaseConfig = {
 
   navLinks: [
     { label: "docs", url: "#" },
-    { label: "playground", url: "https://use-shortcuts.vercel.app" },
-    { label: "changelog", url: "https://github.com/remcostoeten/use-shortcut/releases" },
+    { label: "playground", url: "#demo" },
+    { label: "changelog", url: "https://github.com/remcostoeten/pixel-heading-word/releases" },
   ],
 
   links: {
-    npm: "https://www.npmjs.com/package/@remcostoeten/use-shortcut",
-    github: "https://github.com/remcostoeten/use-shortcut",
+    npm: "https://www.npmjs.com/package/@remcostoeten/pixel-heading-word",
+    github: "https://github.com/remcostoeten/pixel-heading-word",
   },
 
   ctas: [
     { label: "get started", url: "#install", primary: true },
-    { label: "explore the docs", url: "https://use-shortcuts.vercel.app" },
+    { label: "explore the docs", url: "#" },
   ],
 
   worksWith: [
@@ -140,106 +140,84 @@ const showcaseConfig: ShowcaseConfig = {
   ],
 
   badges: {
-    version: "v1.3.0",
+    version: "v1.0.0",
     downloads: "—",
-    bundleSize: "~3kb",
+    bundleSize: "~2kb",
   },
 
   primaryColor: undefined,
 
   why: {
     paragraphs: [
-      "every app needs keyboard shortcuts. most solutions are either too heavy, poorly typed, or have stale closure bugs. use-shortcut solves all of it with a chainable api, perfect typescript intellisense, and zero dependencies.",
-      "same input = same output. no api calls, no storage, no randomness. just deterministic, reliable behavior that works offline. mod resolves to ⌘ on mac and ctrl on windows — automatically.",
+      "every app needs personality. pixel fonts add a bold, retro-futuristic edge to your headings — but managing five font variants, hover states, and accessibility is tedious. pixel-heading-word handles it all with zero animation dependencies.",
+      "two interaction modes — swap between two specific fonts or cycle through all five on hover. whole-word animation, keyboard support, aria-live labels, and full composability with any heading level.",
     ],
   },
 
   features: [
-    { value: "~3kb", label: "tiny & tree-shakeable", description: "zero runtime overhead. only react as peer dependency." },
-    { value: "$.then()", label: "sequences & chords", description: "multi-step bindings like g → d. github-style navigation shortcuts." },
-    { value: "scopes", label: "named scopes", description: "activate/deactivate shortcut contexts like editor, navigation, modal." },
-    { value: "ts", label: "perfect typescript", description: "complete type inference at every chain step. no @types needed." },
-    { value: "cli", label: "scaffold & init", description: "shadcn-style init or full architecture scaffold with provider, registry & scopes." },
-    { value: "⏺", label: "recording mode", description: "capture the next key combo for custom keybind UIs." },
+    { value: "~2kb", label: "zero dependencies", description: "css transitions only. no motion library needed." },
+    { value: "2 modes", label: "swap & cycle", description: "swap between two fonts or cycle through all five on hover." },
+    { value: "a11y", label: "fully accessible", description: "keyboard support, focus management, aria-live labels." },
+    { value: "h1–h6", label: "any heading level", description: "renders as any heading element with full className support." },
+    { value: "5 fonts", label: "geist pixel variants", description: "square, grid, circle, triangle, and line." },
+    { value: "css", label: "css transitions", description: "smooth duration-150 transitions, no js animation overhead." },
   ],
 
   apiProps: [
-    { name: "debug", type: "boolean", default: "false", description: "log all shortcuts and key presses to console." },
-    { name: "delay", type: "number", default: "0", description: "global debounce delay in ms before triggering handler." },
-    { name: "ignoreInputs", type: "boolean", default: "true", description: "skip shortcuts when focus is in input/textarea/select." },
-    { name: "disabled", type: "boolean", default: "false", description: "disable all shortcuts registered by this hook." },
-    { name: "eventType", type: '"keydown" | "keyup"', default: '"keydown"', description: "which keyboard event to listen for." },
-    { name: "target", type: "EventTarget", default: "window", description: "dom element or window to attach the listener to." },
-    { name: "activeScopes", type: "string | string[]", default: "—", description: "named scopes that are initially active." },
-    { name: "sequenceTimeout", type: "number", default: "800", description: "ms allowed between sequence steps before reset." },
-    { name: "conflictWarnings", type: "boolean", default: "false", description: "warn when two shortcuts have overlapping bindings." },
-    { name: "onConflict", type: "(conflict) => void", default: "—", description: "callback when a shortcut conflict is detected." },
-    { name: "eventFilter", type: "(event) => boolean", default: "—", description: "global filter to block events (e.g. composing)." },
+    { name: "as", type: '"h1" | "h2" | ... | "h6"', default: '"h1"', description: "html heading level to render." },
+    { name: "initialFont", type: '"square" | "grid" | "circle" | "triangle" | "line"', default: '"square"', description: "the resting pixel font displayed by default." },
+    { name: "hoverFont", type: '"square" | "grid" | ... | "line"', default: "—", description: "font to show on hover. when set, swaps instead of cycling." },
+    { name: "cycleInterval", type: "number", default: "300", description: "interval in ms between font cycles on hover (cycle mode only)." },
+    { name: "defaultFontIndex", type: "number", default: "0", description: "initial font index (0–4). ignored when initialFont is set." },
+    { name: "showLabel", type: "boolean", default: "false", description: "show the active font name label beneath the heading." },
+    { name: "onFontIndexChange", type: "(index: number) => void", default: "—", description: "callback fired when the active font changes." },
+    { name: "className", type: "string", default: "—", description: "additional css classes applied to the heading element." },
   ],
 
   codeExamples: [
     {
-      title: "basic usage",
-      code: `import { useShortcut } from "@remcostoeten/use-shortcut"
+      title: "swap mode",
+      code: `import { PixelHeading } from "@/components/ui/pixel-heading-word"
 
-function App() {
-  const $ = useShortcut()
-
-  $.cmd.key("s").on(() => save())
-  $.mod.key("k").on(() => search())
-  $.key("/").except("typing").on(() => focusSearch())
-
-  return <div>press ⌘+S to save</div>
-}`,
+<PixelHeading initialFont="square" hoverFont="circle" className="text-6xl">
+  Swap on hover
+</PixelHeading>`,
       language: "tsx",
     },
     {
-      title: "sequences & scopes",
-      code: `const $ = useShortcut({ activeScopes: "navigation" })
+      title: "cycle mode",
+      code: `<PixelHeading initialFont="square" className="text-6xl">
+  Cycle on hover
+</PixelHeading>
 
-// github-style: press g, then d
-$.key("g").then("d").on(() => goToDashboard())
-
-// scoped shortcuts
-$.in("editor").mod.key("s").on(() => saveFile())
-$.in("navigation").key("g").then("p").on(() => goToProfile())
-
-// switch scopes
-$.setScopes("editor")
-$.enableScope("navigation")`,
+// omit hoverFont to cycle through all 5 fonts`,
       language: "tsx",
     },
     {
-      title: "recording & maps",
-      code: `import { useShortcut, useShortcutMap } from "@remcostoeten/use-shortcut"
-
-// record next key combo for custom keybind UI
-const combo = await $.record({ timeoutMs: 5000 })
-
-// register many shortcuts at once
-useShortcutMap({
-  save: { keys: "mod+s", handler: () => save() },
-  undo: { keys: "mod+z", handler: () => undo() },
-  dashboard: { keys: ["g", "d"], handler: () => go() },
-})`,
+      title: "with label & callback",
+      code: `<PixelHeading
+  initialFont="grid"
+  showLabel
+  onFontIndexChange={(index) => console.log("Font index:", index)}
+  className="text-6xl"
+>
+  With label
+</PixelHeading>`,
       language: "tsx",
     },
     {
       title: "cli setup",
-      code: `# copy source files (shadcn-style)
-npx @remcostoeten/use-shortcut init
+      code: `# shadcn-style install
+npx shadcn@latest add https://cult-ui.com/r/pixel-heading-word.json
 
-# scaffold full architecture
-npx @remcostoeten/use-shortcut scaffold
-
-# react scaffold with custom path
-npx @remcostoeten/use-shortcut scaffold --framework react --target src`,
+# or install geist fonts manually
+npm install geist`,
       language: "bash",
     },
   ],
 
   useCases:
-    "command palettes, editor shortcuts, vim-style navigation, accessibility overlays, gaming controls, dashboard hotkeys, modal management, custom keybind UIs — anywhere you need reliable, typed keyboard shortcuts.",
+    "hero text, buttons, labels, smaller headings, retro-themed UIs, landing pages, interactive portfolios, creative agencies — anywhere you want bold, pixel-font personality with zero effort.",
 };
 
 export default showcaseConfig;
