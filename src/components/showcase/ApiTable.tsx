@@ -25,7 +25,7 @@ export function ApiTable({ title = "props", props = defaultProps }: ApiTableProp
         {title}
       </h2>
 
-      <div className="overflow-hidden rounded-md border border-border">
+      <div className="overflow-hidden border border-border">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border bg-secondary/50">

@@ -46,7 +46,7 @@ export function CodeBlock({ title, code }: CodeBlockProps) {
           </button>
         </div>
       )}
-      <div className="overflow-x-auto rounded-md border border-border bg-card p-4">
+      <div className="overflow-x-auto border border-border bg-card p-4">
         <pre>
           <SyntaxHighlight code={code} />
         </pre>
