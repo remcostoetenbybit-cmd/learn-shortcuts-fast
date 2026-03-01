@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { InstallCommand } from "./InstallCommand";
 import { DemoSection } from "./DemoSection";
@@ -9,121 +9,33 @@ import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
 import { WorksWith } from "./WorksWith";
 import { PixelHeading } from "@/components/ui/pixel-heading";
-import type { ShowcaseConfig } from "@/config/showcase.config";
-import defaultConfig from "@/config/showcase.config";
+import type { PackageConfig } from "@/config/types";
 import { ArrowRight } from "lucide-react";
 
 interface PackageShowcaseProps {
-  config?: Partial<ShowcaseConfig>;
+  config: PackageConfig;
   demoContent?: ReactNode;
 }
 
-export function PackageShowcase({
-  config: overrides,
-  demoContent,
-}: PackageShowcaseProps) {
-  const config = { ...defaultConfig, ...overrides };
-
-  // Apply dynamic primary color if configured
-  useEffect(() => {
-    if (config.primaryColor) {
-      document.documentElement.style.setProperty("--primary", config.primaryColor);
-      document.documentElement.style.setProperty("--accent", config.primaryColor);
-      document.documentElement.style.setProperty("--ring", config.primaryColor);
-      return () => {
-        document.documentElement.style.removeProperty("--primary");
-        document.documentElement.style.removeProperty("--accent");
-        document.documentElement.style.removeProperty("--ring");
-      };
-    }
-  }, [config.primaryColor]);
-
-  const pkgLower = config.packageName.toLowerCase();
-
+export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
   return (
     <div className="min-h-screen bg-background relative overflow-x-clip">
-      {/* Navbar */}
       <Navbar
         packageName={config.packageName}
         navLinks={config.navLinks}
         githubUrl={config.links.github}
       />
 
-      {/* Floating decorative elements outside the column */}
-      <div className="hidden lg:block pointer-events-none select-none" aria-hidden="true">
-        {/* Left side floaters */}
-        <div className="fixed top-[200px] left-[calc(50%-400px)] -translate-x-full">
-          <PixelHeading
-            as="h2"
-            mode="random"
-            autoPlay
-            cycleInterval={400}
-            className="text-4xl text-muted-foreground/10 rotate-[-8deg]"
-          >
-            pixel
-          </PixelHeading>
-        </div>
-        <div className="fixed top-[450px] left-[calc(50%-380px)] -translate-x-full">
-          <PixelHeading
-            as="h3"
-            mode="uniform"
-            autoPlay
-            cycleInterval={600}
-            className="text-2xl text-muted-foreground/8 rotate-[4deg]"
-          >
-            swap
-          </PixelHeading>
-        </div>
-        <div className="fixed top-[650px] left-[calc(50%-420px)] -translate-x-full">
-          <PixelHeading
-            as="h3"
-            mode="wave"
-            autoPlay
-            cycleInterval={300}
-            className="text-3xl text-muted-foreground/10 rotate-[-3deg]"
-          >
-            cycle
-          </PixelHeading>
-        </div>
-
-        {/* Right side floaters */}
-        <div className="fixed top-[280px] right-[calc(50%-400px)] translate-x-full">
-          <PixelHeading
-            as="h2"
-            mode="wave"
-            autoPlay
-            cycleInterval={350}
-            className="text-3xl text-muted-foreground/10 rotate-[6deg]"
-          >
-            heading
-          </PixelHeading>
-        </div>
-        <div className="fixed top-[520px] right-[calc(50%-390px)] translate-x-full">
-          <PixelHeading
-            as="h3"
-            mode="multi"
-            autoPlay
-            cycleInterval={500}
-            className="text-2xl text-muted-foreground/8 rotate-[-5deg]"
-          >
-            geist
-          </PixelHeading>
-        </div>
-        <div className="fixed top-[740px] right-[calc(50%-410px)] translate-x-full">
-          <PixelHeading
-            as="h3"
-            mode="random"
-            autoPlay
-            cycleInterval={250}
-            className="text-xl text-muted-foreground/10 rotate-[3deg]"
-          >
-            a11y
-          </PixelHeading>
-        </div>
+      {/* Extended border lines outside column */}
+      <div className="hidden lg:block pointer-events-none select-none absolute inset-0" aria-hidden="true">
+        {/* Horizontal rules that bleed outside the column */}
+        <div className="absolute top-[320px] left-0 right-0 h-px bg-border/40" />
+        <div className="absolute top-[320px] left-0 right-0 h-px border-t border-dashed border-border/30" style={{ top: "520px" }} />
+        <div className="absolute left-0 right-0 h-px border-t border-dashed border-border/20" style={{ top: "780px" }} />
       </div>
 
       {/* Centered paper column */}
-      <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative">
+      <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative z-10">
         {/* Header */}
         <header className="border-b border-border px-8 pt-12 pb-8">
           {config.tagline && (
@@ -131,19 +43,23 @@ export function PackageShowcase({
               [{config.tagline}]
             </p>
           )}
+
           <PixelHeading
             as="h1"
             mode="wave"
             autoPlay
-            cycleInterval={200}
-            staggerDelay={40}
+            cycleInterval={250}
+            staggerDelay={60}
             initialFont="square"
-            className="text-2xl font-bold lowercase tracking-tight text-foreground sm:text-3xl leading-[1.2]"
+            className="text-3xl font-bold lowercase tracking-tight text-foreground sm:text-4xl leading-[1.1] mb-4"
           >
-            {config.description}
+            {config.heroTitle}
           </PixelHeading>
 
-          {/* CTAs */}
+          <p className="text-sm leading-relaxed text-muted-foreground lowercase max-w-lg">
+            {config.description}
+          </p>
+
           {config.ctas && config.ctas.length > 0 && (
             <div className="flex items-center gap-4 mt-6">
               {config.ctas.map((cta) =>
@@ -171,13 +87,13 @@ export function PackageShowcase({
         </header>
 
         <div className="flex flex-col gap-0">
-          {/* Install — dashed breakout */}
-          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
-            <InstallCommand packageName={`@remcostoeten/${pkgLower}`} />
+          {/* Install */}
+          <div id="install" className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+            <InstallCommand packageName={config.installName} />
           </div>
 
-          {/* Demo — dashed breakout */}
-          <div className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+          {/* Demo */}
+          <div id="demo" className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <DemoSection>{demoContent}</DemoSection>
           </div>
 
@@ -187,7 +103,7 @@ export function PackageShowcase({
               <WorksWith items={config.worksWith} />
             )}
             <BadgeBar
-              packageName={pkgLower}
+              packageName={config.packageName}
               npmUrl={config.links.npm}
               githubUrl={config.links.github}
               version={config.badges.version}
@@ -199,7 +115,7 @@ export function PackageShowcase({
           {/* Why section */}
           <div className="px-8 py-8 border-t border-border">
             <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-3">
-              why {pkgLower}?
+              why {config.packageName}?
             </h2>
             {config.why.paragraphs.map((p, i) => (
               <p key={i} className="text-xs leading-relaxed text-muted-foreground lowercase mb-4 last:mb-0">
@@ -208,7 +124,7 @@ export function PackageShowcase({
             ))}
           </div>
 
-          {/* Feature grid — dashed breakout */}
+          {/* Feature grid */}
           <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <FeatureGrid features={config.features} />
           </div>
@@ -218,8 +134,8 @@ export function PackageShowcase({
             <CodeExamples examples={config.codeExamples} />
           </div>
 
-          {/* API reference — dashed breakout */}
-          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+          {/* API reference */}
+          <div id="api" className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <ApiTable props={config.apiProps} />
           </div>
 

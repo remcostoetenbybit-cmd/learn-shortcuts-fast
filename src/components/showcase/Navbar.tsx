@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Github, Menu, X } from "lucide-react";
-import type { ShowcaseNavLink } from "@/config/showcase.config";
+import type { NavLink as ShowcaseNavLink } from "@/config/types";
 
 interface NavbarProps {
   packageName: string;
@@ -15,7 +15,7 @@ export function Navbar({ packageName, navLinks, githubUrl }: NavbarProps) {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
       <div className="mx-auto max-w-2xl flex items-center justify-between px-8 h-12">
         {/* Logo / name */}
-        <a href="/" className="font-display text-sm font-bold lowercase tracking-wide text-foreground hover:text-primary transition-colors">
+        <a href="/" className="font-mono text-sm font-bold lowercase tracking-wide text-foreground hover:text-primary transition-colors">
           {packageName.toLowerCase()}
         </a>
 

@@ -1,4 +1,4 @@
-import type { ShowcaseWorksWithItem } from "@/config/showcase.config";
+import type { WorksWithItem as ShowcaseWorksWithItem } from "@/config/types";
 
 interface WorksWithProps {
   items: ShowcaseWorksWithItem[];
