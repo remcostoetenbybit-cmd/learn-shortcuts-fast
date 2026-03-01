@@ -21,41 +21,34 @@ export function CodeBlock({ title, code }: CodeBlockProps) {
   return (
     <div className="w-full">
       {title && (
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-mono text-xs lowercase text-muted-foreground">{title}</span>
-        </div>
+        <h3 className="font-display text-sm font-bold lowercase tracking-tight text-foreground mb-3">
+          {title}
+        </h3>
       )}
-      <div className="border border-border overflow-hidden">
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card/50">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-muted-foreground/20" />
-            <span className="h-2 w-2 rounded-full bg-muted-foreground/20" />
-            <span className="h-2 w-2 rounded-full bg-muted-foreground/20" />
-          </div>
-          <button
-            onClick={copy}
-            className="relative h-6 w-6 flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-            aria-label="Copy code"
-          >
-            <Copy
-              className={`h-3 w-3 absolute transition-all duration-300 ${
-                copied
-                  ? "opacity-0 scale-50 rotate-12"
-                  : "opacity-100 scale-100 rotate-0"
-              }`}
-              style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-            />
-            <Check
-              className={`h-3 w-3 absolute text-primary transition-all duration-300 ${
-                copied
-                  ? "opacity-100 scale-100 rotate-0"
-                  : "opacity-0 scale-50 -rotate-12"
-              }`}
-              style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-            />
-          </button>
-        </div>
+      <div className="relative group border border-border overflow-hidden">
+        {/* Copy button — floating inside code area */}
+        <button
+          onClick={copy}
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 flex items-center justify-center bg-secondary/80 border border-border text-muted-foreground transition-all hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 focus:opacity-100"
+          aria-label="Copy code"
+        >
+          <Copy
+            className={`h-3 w-3 absolute transition-all duration-300 ${
+              copied
+                ? "opacity-0 scale-50 rotate-12"
+                : "opacity-100 scale-100 rotate-0"
+            }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          />
+          <Check
+            className={`h-3 w-3 absolute text-primary transition-all duration-300 ${
+              copied
+                ? "opacity-100 scale-100 rotate-0"
+                : "opacity-0 scale-50 -rotate-12"
+            }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          />
+        </button>
         {/* Code area with line numbers */}
         <div className="overflow-x-auto bg-background">
           <pre className="py-3">
