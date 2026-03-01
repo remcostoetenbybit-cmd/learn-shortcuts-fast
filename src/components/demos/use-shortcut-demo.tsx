@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useShortcut, formatShortcut } from "@remcostoeten/use-shortcut";
-import { CodeBlock } from "@/components/showcase/CodeBlock";
+import { SyntaxHighlight } from "@/components/showcase/SyntaxHighlight";
 
 interface ShortcutEvent {
   id: number;
@@ -38,7 +38,7 @@ export function UseShortcutDemo() {
     const id = ++idRef.current;
     setEvents((prev) => [{ id, combo, display, label, timestamp: Date.now() }, ...prev].slice(0, MAX_EVENTS));
     setActiveCombo(combo);
-    setTimeout(() => setActiveCombo(null), 400);
+    setTimeout(() => setActiveCombo(null), 500);
   }, []);
 
   const $ = useShortcut({ disabled: !isActive, ignoreInputs: true });
@@ -66,7 +66,6 @@ export function UseShortcutDemo() {
     () => pushEvent("escape", "Esc", "dismiss"),
   );
 
-  // Resolve display strings from the actual results
   const shortcuts = DEMO_SHORTCUTS.map((s, i) => ({
     ...s,
     display: i === 0 ? save.display
@@ -76,97 +75,133 @@ export function UseShortcutDemo() {
       : s.display,
   }));
 
-  // Build the source code shown alongside
-  const sourceCode = `const $ = useShortcut()
-
-${shortcuts.map((s) => s.code).join("\n")}`;
+  const sourceLines = [
+    'const $ = useShortcut()',
+    '',
+    ...shortcuts.map((s) => s.code),
+  ];
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Header */}
+    <div className="w-full flex flex-col gap-5">
+      {/* Header bar */}
       <div className="flex items-center justify-between">
-        <p className="font-mono text-xs text-muted-foreground lowercase">
-          try these shortcuts — press any combo below
-        </p>
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-primary/80 animate-pulse" />
+          <p className="font-mono text-xs text-muted-foreground lowercase">
+            interactive playground
+          </p>
+        </div>
         <button
           onClick={() => setIsActive(!isActive)}
-          className={`font-mono text-[10px] px-2 py-1 border border-dashed transition-colors ${
-            isActive ? "border-primary/50 text-primary" : "border-border text-muted-foreground"
+          className={`font-mono text-[10px] px-2.5 py-1 border transition-colors ${
+            isActive
+              ? "border-primary/40 bg-primary/5 text-primary"
+              : "border-border bg-card text-muted-foreground"
           }`}
         >
-          [{isActive ? "active" : "paused"}]
+          {isActive ? "listening" : "paused"}
         </button>
       </div>
 
-      {/* Two-column: code + shortcuts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border border border-border">
-        {/* Source code */}
-        <div className="bg-card p-4 overflow-x-auto">
-          <p className="font-mono text-[10px] text-muted-foreground lowercase mb-3">source</p>
-          <pre className="text-[11px] leading-relaxed">
-            <code className="font-mono text-muted-foreground">
-              {sourceCode.split("\n").map((line, i) => {
-                // Highlight the line whose shortcut was just triggered
-                const isHighlighted = activeCombo && shortcuts.some(
-                  (s) => s.combo === activeCombo && line.includes(s.label)
-                );
-                return (
-                  <div
-                    key={i}
-                    className={`px-1 -mx-1 transition-colors duration-300 ${
-                      isHighlighted ? "bg-primary/10 text-primary" : ""
-                    }`}
-                  >
-                    {line || "\u00A0"}
-                  </div>
-                );
-              })}
-            </code>
+      {/* Main playground area */}
+      <div className="border border-border overflow-hidden">
+        {/* Tab bar */}
+        <div className="flex items-center justify-between border-b border-border bg-card/60 px-4 py-2">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] text-primary lowercase">shortcuts.tsx</span>
+            <span className="font-mono text-[10px] text-muted-foreground/40">|</span>
+            <span className="font-mono text-[10px] text-muted-foreground/50 lowercase">read-only</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
+            <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
+            <span className="h-2.5 w-2.5 rounded-full bg-primary/40" />
+          </div>
+        </div>
+
+        {/* Code editor with line numbers + syntax highlighting */}
+        <div className="bg-background overflow-x-auto">
+          <pre className="py-4">
+            {sourceLines.map((line, i) => {
+              const isHighlighted = activeCombo && shortcuts.some(
+                (s) => s.combo === activeCombo && line.includes(s.label)
+              );
+              return (
+                <div
+                  key={i}
+                  className={`flex transition-colors duration-300 ${
+                    isHighlighted ? "bg-primary/8" : "hover:bg-card/40"
+                  }`}
+                >
+                  <span className={`select-none w-10 shrink-0 text-right pr-4 font-mono text-[11px] leading-relaxed ${
+                    isHighlighted ? "text-primary/60" : "text-muted-foreground/30"
+                  }`}>
+                    {i + 1}
+                  </span>
+                  <span className={`pl-4 border-l font-mono text-[11px] leading-relaxed flex-1 ${
+                    isHighlighted ? "border-primary/40" : "border-border/40"
+                  }`}>
+                    {line ? (
+                      <SyntaxHighlight code={line} />
+                    ) : (
+                      "\u00A0"
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </pre>
         </div>
 
-        {/* Shortcut keys grid */}
-        <div className="bg-background grid grid-cols-2 gap-px bg-border">
-          {shortcuts.map((s) => (
-            <div
-              key={s.combo}
-              className={`bg-background px-3 py-4 flex flex-col items-center gap-1.5 cursor-default transition-colors duration-300 ${
-                activeCombo === s.combo ? "bg-primary/5" : ""
-              }`}
-            >
-              <kbd
-                className={`font-mono text-sm tracking-wider transition-colors duration-300 ${
-                  activeCombo === s.combo ? "text-primary" : "text-foreground"
+        {/* Keyboard shortcut chips */}
+        <div className="border-t border-border bg-card/30 px-4 py-4">
+          <div className="flex flex-wrap gap-2">
+            {shortcuts.map((s) => (
+              <button
+                key={s.combo}
+                className={`group flex items-center gap-2 px-3 py-2 border font-mono text-xs transition-all duration-300 ${
+                  activeCombo === s.combo
+                    ? "border-primary/50 bg-primary/8 text-primary scale-[1.02]"
+                    : "border-border bg-background text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground"
                 }`}
               >
-                {s.display}
-              </kbd>
-              <span className="font-mono text-[10px] text-muted-foreground lowercase">
-                {s.label}
-              </span>
-            </div>
-          ))}
+                <kbd className={`font-mono text-[11px] tracking-wide transition-colors duration-300 ${
+                  activeCombo === s.combo ? "text-primary" : "text-foreground/70 group-hover:text-foreground"
+                }`}>
+                  {s.display}
+                </kbd>
+                <span className="text-[10px] text-muted-foreground/60 lowercase">{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Event log */}
-      <div className="border border-border">
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/50">
-          <span className="font-mono text-[10px] text-muted-foreground lowercase">event log</span>
+      <div className="border border-border overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card/40">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] text-muted-foreground lowercase">event log</span>
+            {events.length > 0 && (
+              <span className="font-mono text-[10px] text-muted-foreground/40">
+                ({events.length})
+              </span>
+            )}
+          </div>
           {events.length > 0 && (
             <button
               onClick={() => setEvents([])}
-              className="font-mono text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              className="font-mono text-[10px] text-muted-foreground/50 hover:text-foreground transition-colors"
             >
-              [clear]
+              clear
             </button>
           )}
         </div>
-        <div className="min-h-[80px] max-h-[160px] overflow-y-auto">
+        <div className="min-h-[72px] max-h-[152px] overflow-y-auto">
           {events.length === 0 ? (
-            <div className="flex items-center justify-center h-[80px]">
-              <p className="font-mono text-[10px] text-muted-foreground/50 lowercase">
-                press a shortcut to see it here...
+            <div className="flex items-center justify-center h-[72px]">
+              <p className="font-mono text-[10px] text-muted-foreground/40 lowercase">
+                waiting for input...
               </p>
             </div>
           ) : (
@@ -174,14 +209,14 @@ ${shortcuts.map((s) => s.code).join("\n")}`;
               {events.map((ev, i) => (
                 <div
                   key={ev.id}
-                  className={`flex items-center gap-3 px-3 py-1.5 border-b border-border/50 last:border-0 ${
+                  className={`flex items-center gap-3 px-4 py-2 border-b border-border/30 last:border-0 transition-colors ${
                     i === 0 ? "bg-primary/5" : ""
                   }`}
-                  style={{ animation: i === 0 ? "slideIn 200ms ease-out" : undefined }}
+                  style={{ animation: i === 0 ? "demoSlideIn 180ms ease-out" : undefined }}
                 >
-                  <kbd className="font-mono text-xs text-primary min-w-[60px]">{ev.display}</kbd>
+                  <kbd className="font-mono text-[11px] text-primary min-w-[56px]">{ev.display}</kbd>
                   <span className="font-mono text-[10px] text-muted-foreground lowercase flex-1">{ev.label}</span>
-                  <span className="font-mono text-[10px] text-muted-foreground/40">
+                  <span className="font-mono text-[10px] text-muted-foreground/30 tabular-nums">
                     {new Date(ev.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                   </span>
                 </div>
@@ -192,8 +227,8 @@ ${shortcuts.map((s) => s.code).join("\n")}`;
       </div>
 
       <style>{`
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(-8px); }
+        @keyframes demoSlideIn {
+          from { opacity: 0; transform: translateY(-6px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
