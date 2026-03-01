@@ -95,4 +95,8 @@
   .font-display {
     font-family: 'Bricolage Grotesque', system-ui, sans-serif;
   }
+
+  kbd {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
 }
