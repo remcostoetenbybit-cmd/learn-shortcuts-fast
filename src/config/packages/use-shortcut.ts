@@ -17,7 +17,7 @@ const useShortcutConfig: PackageConfig = {
   navLinks: [
     { label: "docs", url: "#api" },
     { label: "playground", url: "#demo" },
-    { label: "changelog", url: "https://github.com/remcostoeten/use-shortcut/releases" },
+    { label: "github", url: "https://github.com/remcostoeten/use-shortcut" },
   ],
 
   links: {
