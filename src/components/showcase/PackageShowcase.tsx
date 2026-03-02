@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Navbar } from "./Navbar";
 import { InstallCommand } from "./InstallCommand";
 import { DemoSection } from "./DemoSection";
@@ -10,6 +10,7 @@ import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
 import { WorksWith } from "./WorksWith";
 import { UseCaseCards } from "./UseCaseCards";
+import { SearchOverlay } from "./SearchOverlay";
 import { PixelHeading } from "@/components/ui/pixel-heading";
 import type { PackageConfig } from "@/config/types";
 import { ArrowRight } from "lucide-react";
@@ -20,12 +21,16 @@ interface PackageShowcaseProps {
 }
 
 export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background relative overflow-x-clip">
+      <SearchOverlay config={config} open={searchOpen} onClose={() => setSearchOpen(false)} />
       <Navbar
         packageName={config.packageName}
         navLinks={config.navLinks}
         githubUrl={config.links.github}
+        onSearchOpen={() => setSearchOpen(true)}
       />
 
       {/* Extended border lines outside column */}
