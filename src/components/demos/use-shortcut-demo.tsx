@@ -1,6 +1,25 @@
 import { useState, useCallback, useRef } from "react";
 import { useShortcut, formatShortcut } from "@remcostoeten/use-shortcut";
-import { SyntaxHighlight } from "@/components/showcase/SyntaxHighlight";
+import { Highlight, themes } from "prism-react-renderer";
+
+const codeTheme = {
+  ...themes.nightOwl,
+  plain: {
+    color: "hsl(0 0% 70%)",
+    backgroundColor: "transparent",
+  },
+  styles: [
+    { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "hsl(0 0% 35%)", fontStyle: "italic" as const } },
+    { types: ["punctuation"], style: { color: "hsl(0 0% 45%)" } },
+    { types: ["property", "tag", "boolean", "number", "constant", "symbol", "deleted"], style: { color: "hsl(18 100% 60%)" } },
+    { types: ["selector", "attr-name", "string", "char", "builtin", "inserted"], style: { color: "hsl(152 60% 54%)" } },
+    { types: ["operator", "entity", "url"], style: { color: "hsl(0 0% 55%)" } },
+    { types: ["atrule", "attr-value", "keyword"], style: { color: "hsl(200 80% 65%)" } },
+    { types: ["function", "class-name"], style: { color: "hsl(40 90% 64%)" } },
+    { types: ["regex", "important", "variable"], style: { color: "hsl(18 80% 65%)" } },
+    { types: ["plain"], style: { color: "hsl(0 0% 70%)" } },
+  ],
+};
 
 interface ShortcutEvent {
   id: number;
@@ -120,38 +139,46 @@ export function UseShortcutDemo() {
         </div>
 
         {/* Code editor with line numbers + syntax highlighting */}
-        <div className="bg-background overflow-x-auto">
-          <pre className="py-4">
-            {sourceLines.map((line, i) => {
-              const isHighlighted = activeCombo && shortcuts.some(
-                (s) => s.combo === activeCombo && line.includes(s.label)
-              );
-              return (
-                <div
-                  key={i}
-                  className={`flex transition-colors duration-300 ${
-                    isHighlighted ? "bg-primary/8" : "hover:bg-card/40"
-                  }`}
-                >
-                  <span className={`select-none w-10 shrink-0 text-right pr-4 font-mono text-[11px] leading-relaxed ${
-                    isHighlighted ? "text-primary/60" : "text-muted-foreground/30"
-                  }`}>
-                    {i + 1}
-                  </span>
-                  <span className={`pl-4 border-l font-mono text-[11px] leading-relaxed flex-1 ${
-                    isHighlighted ? "border-primary/40" : "border-border/40"
-                  }`}>
-                    {line ? (
-                      <SyntaxHighlight code={line} />
-                    ) : (
-                      "\u00A0"
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </pre>
-        </div>
+        <Highlight theme={codeTheme} code={sourceLines.join("\n")} language="tsx">
+          {({ tokens, getLineProps, getTokenProps }) => (
+            <div className="bg-background overflow-x-auto">
+              <pre className="py-4">
+                {tokens.map((line, i) => {
+                  const sourceLine = sourceLines[i] || "";
+                  const isHighlighted = activeCombo && shortcuts.some(
+                    (s) => s.combo === activeCombo && sourceLine.includes(s.label)
+                  );
+                  const lineProps = getLineProps({ line, key: i });
+                  return (
+                    <div
+                      key={i}
+                      {...lineProps}
+                      style={undefined}
+                      className={`flex transition-colors duration-300 ${
+                        isHighlighted ? "bg-primary/8" : "hover:bg-card/40"
+                      }`}
+                    >
+                      <span className={`select-none w-10 shrink-0 text-right pr-4 font-mono text-[11px] leading-relaxed ${
+                        isHighlighted ? "text-primary/60" : "text-muted-foreground/30"
+                      }`}>
+                        {i + 1}
+                      </span>
+                      <span className={`pl-4 border-l font-mono text-[11px] leading-relaxed flex-1 ${
+                        isHighlighted ? "border-primary/40" : "border-border/40"
+                      }`}>
+                        {line.map((token, key) => {
+                          const tokenProps = getTokenProps({ token, key });
+                          return <span key={key} {...tokenProps} />;
+                        })}
+                        {line.length === 1 && line[0].content === "" && "\u00A0"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </pre>
+            </div>
+          )}
+        </Highlight>
 
         {/* Keyboard shortcut chips */}
         <div className="border-t border-border bg-card/30 px-4 py-4">
