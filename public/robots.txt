@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://use-shortcuts.vercel.app/sitemap.xml
