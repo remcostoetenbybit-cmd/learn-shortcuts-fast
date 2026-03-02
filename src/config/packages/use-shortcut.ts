@@ -122,43 +122,49 @@ useShortcutMap({
       demoId: "recording" as const,
     },
     {
-      title: "next.js: mutations with external api",
-      code: `// app/actions/posts.ts
-"use server"
+      title: "real-world: mutations",
+      tabs: [
+        {
+          label: "external api",
+          code: `// app/hooks/usePostShortcuts.ts
 import { useShortcut } from "@remcostoeten/use-shortcut"
 
-const $ = useShortcut()
+export function usePostShortcuts(post: Post) {
+  const $ = useShortcut()
 
-// Cmd+S triggers save via external API
-$.cmd.key("s").on(async () => {
-  const res = await fetch("https://api.example.com/posts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, content }),
+  // \u2318+S triggers save via external API
+  $.cmd.key("s").on(async () => {
+    const res = await fetch("/api/posts", {
+      method: "PUT",
+      body: JSON.stringify(post),
+    })
+    if (!res.ok) throw new Error("Save failed")
+    toast.success("Post saved")
   })
-  if (!res.ok) throw new Error("Failed to create post")
-  return res.json()
-})`,
-      language: "tsx",
-    },
-    {
-      title: "next.js: mutations with drizzle",
-      code: `// app/actions/posts.ts
+}`,
+        },
+        {
+          label: "drizzle orm",
+          code: `// app/actions/posts.ts
 "use server"
 import { db } from "@/db"
 import { posts } from "@/db/schema"
-import { useShortcut } from "@remcostoeten/use-shortcut"
+import { eq } from "drizzle-orm"
 
-const $ = useShortcut()
+export async function updatePost(id: string, data: PostData) {
+  // Triggered by \u2318+S from the client hook
+  const [updated] = await db
+    .update(posts)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(posts.id, id))
+    .returning()
 
-// Cmd+S triggers save via Drizzle ORM
-$.cmd.key("s").on(async () => {
-  await db.insert(posts).values({
-    title: "New Post",
-    content: "Written with shortcuts.",
-    authorId: session.user.id,
-  })
-})`,
+  if (!updated) throw new Error("Post not found")
+  revalidateTag("posts")
+  return updated
+}`,
+        },
+      ],
       language: "tsx",
     },
   ],
