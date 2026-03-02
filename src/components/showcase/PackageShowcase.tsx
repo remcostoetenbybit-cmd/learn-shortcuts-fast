@@ -8,8 +8,6 @@ import { ApiDocs } from "./ApiDocs";
 import { CodeExamples } from "./CodeExamples";
 import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
-import { WorksWith } from "./WorksWith";
-import { UseCaseCards } from "./UseCaseCards";
 import { SearchOverlay } from "./SearchOverlay";
 import { PixelHeading } from "@/components/ui/pixel-heading";
 import type { PackageConfig } from "@/config/types";
@@ -103,11 +101,8 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
             />
           </div>
 
-          {/* 2. Works with + Badge bar */}
-          <div className="px-8 py-6 flex flex-col gap-4">
-            {config.worksWith && config.worksWith.length > 0 && (
-              <WorksWith items={config.worksWith} />
-            )}
+          {/* 2. Badge bar */}
+          <div className="px-8 py-6">
             <BadgeBar
               packageName={config.packageName}
               npmUrl={config.links.npm}
@@ -143,11 +138,6 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
           {/* 6. Real-world examples with interactive mini-demos */}
           <div className="px-8 py-8">
             <CodeExamples examples={config.codeExamples} />
-          </div>
-
-          {/* 7. Use case cards (replaces the old paragraph) */}
-          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
-            <UseCaseCards useCases={config.useCases} />
           </div>
 
           {/* 8. API deep dive */}

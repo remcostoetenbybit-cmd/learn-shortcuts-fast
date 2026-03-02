@@ -1,14 +1,30 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Search, ArrowUp, ArrowDown, CornerDownLeft, Copy, Check } from "lucide-react";
 
+// ─── Visibility hook: only activate keyboard shortcuts when demo is on screen ─
+function useIsVisible(ref: React.RefObject<HTMLElement | null>, margin = "0px") {
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: margin, threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref, margin]);
+  return isVisible;
+}
+
 // ─── Command Palette Mini-Demo ───────────────────────────────────
 const paletteItems = [
-  { label: "Save file", shortcut: "Cmd+S", category: "File" },
-  { label: "Open search", shortcut: "Cmd+K", category: "Navigation" },
-  { label: "Focus search bar", shortcut: "/", category: "Navigation" },
-  { label: "Toggle sidebar", shortcut: "Cmd+B", category: "View" },
-  { label: "Go to line", shortcut: "Ctrl+G", category: "Editor" },
-  { label: "Format document", shortcut: "Shift+Alt+F", category: "Editor" },
+  { label: "Save file", shortcut: "Cmd+S", category: "File", matchKey: "s", mod: true },
+  { label: "Open search", shortcut: "Cmd+K", category: "Navigation", matchKey: "k", mod: true },
+  { label: "Focus search bar", shortcut: "/", category: "Navigation", matchKey: "/", mod: false },
+  { label: "Toggle sidebar", shortcut: "Cmd+B", category: "View", matchKey: "b", mod: true },
+  { label: "Go to line", shortcut: "Ctrl+G", category: "Editor", matchKey: "g", ctrl: true },
+  { label: "Format document", shortcut: "Shift+Alt+F", category: "Editor", matchKey: "f", shift: true, alt: true },
 ];
 
 function CommandPaletteDemo() {
@@ -16,6 +32,8 @@ function CommandPaletteDemo() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [flash, setFlash] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isVisible = useIsVisible(containerRef);
 
   const filtered = paletteItems.filter(
     (item) =>
@@ -27,6 +45,55 @@ function CommandPaletteDemo() {
     setSelectedIndex(0);
   }, [query]);
 
+  const triggerItem = useCallback((label: string) => {
+    setFlash(label);
+    setTimeout(() => setFlash(null), 900);
+  }, []);
+
+  // Global keyboard listener: capture actual shortcuts when visible
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't intercept if typing in the palette input itself
+      if (target === inputRef.current) return;
+      // Don't intercept in other inputs
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+
+      const key = e.key.toLowerCase();
+      const mod = e.metaKey || e.ctrlKey;
+
+      for (const item of paletteItems) {
+        const matchKey = item.matchKey.toLowerCase();
+
+        if (item.shift && item.alt && e.shiftKey && e.altKey && key === matchKey) {
+          e.preventDefault();
+          triggerItem(item.label);
+          return;
+        }
+        if (item.ctrl && e.ctrlKey && !e.metaKey && key === matchKey) {
+          e.preventDefault();
+          triggerItem(item.label);
+          return;
+        }
+        if (item.mod && mod && key === matchKey) {
+          e.preventDefault();
+          triggerItem(item.label);
+          return;
+        }
+        if (!item.mod && !item.ctrl && !item.shift && !item.alt && key === matchKey && !mod && !e.shiftKey && !e.altKey) {
+          e.preventDefault();
+          triggerItem(item.label);
+          return;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKey);
+    return () => window.removeEventListener("keydown", handleGlobalKey);
+  }, [isVisible, triggerItem]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "ArrowDown") {
@@ -37,17 +104,15 @@ function CommandPaletteDemo() {
         setSelectedIndex((i) => Math.max(i - 1, 0));
       } else if (e.key === "Enter" && filtered.length > 0) {
         e.preventDefault();
-        const selected = filtered[selectedIndex];
-        setFlash(selected.label);
-        setTimeout(() => setFlash(null), 700);
+        triggerItem(filtered[selectedIndex].label);
         setQuery("");
       }
     },
-    [filtered, selectedIndex]
+    [filtered, selectedIndex, triggerItem]
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       <div className="border border-border bg-card/80 overflow-hidden">
         {/* Search input */}
         <div className="flex items-center gap-2.5 px-3 py-2.5 border-b border-border">
@@ -68,37 +133,41 @@ function CommandPaletteDemo() {
 
         {/* Results */}
         <div className="max-h-[160px] overflow-y-auto">
-          {filtered.map((item, i) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => {
-                setFlash(item.label);
-                setTimeout(() => setFlash(null), 700);
-                setQuery("");
-                inputRef.current?.focus();
-              }}
-              className={`flex w-full items-center justify-between px-3 py-2 transition-colors duration-150 cursor-default text-left ${
-                i === selectedIndex
-                  ? "bg-primary/8 text-foreground"
-                  : "text-muted-foreground hover:bg-card/60"
-              }`}
-              onMouseEnter={() => setSelectedIndex(i)}
-            >
-              <div className="flex items-center gap-2.5">
-                {i === selectedIndex && (
-                  <span className="w-0.5 h-3.5 bg-primary rounded-full" />
-                )}
-                <span className="font-mono text-[11px]">{item.label}</span>
-                <span className="font-mono text-[9px] text-muted-foreground/40">
-                  {item.category}
-                </span>
-              </div>
-              <kbd className="font-mono text-[9px] text-muted-foreground/50">
-                {item.shortcut}
-              </kbd>
-            </button>
-          ))}
+          {filtered.map((item, i) => {
+            const isActive = flash === item.label;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  triggerItem(item.label);
+                  setQuery("");
+                  inputRef.current?.focus();
+                }}
+                className={`flex w-full items-center justify-between px-3 py-2 transition-colors duration-150 cursor-default text-left ${
+                  isActive
+                    ? "bg-primary/15 text-foreground"
+                    : i === selectedIndex
+                    ? "bg-primary/8 text-foreground"
+                    : "text-muted-foreground hover:bg-card/60"
+                }`}
+                onMouseEnter={() => setSelectedIndex(i)}
+              >
+                <div className="flex items-center gap-2.5">
+                  {(i === selectedIndex || isActive) && (
+                    <span className={`w-0.5 h-3.5 rounded-full ${isActive ? "bg-primary animate-pulse" : "bg-primary"}`} />
+                  )}
+                  <span className="font-mono text-[11px]">{item.label}</span>
+                  <span className="font-mono text-[9px] text-muted-foreground/40">
+                    {item.category}
+                  </span>
+                </div>
+                <kbd className={`font-mono text-[9px] transition-colors ${isActive ? "text-primary" : "text-muted-foreground/50"}`}>
+                  {item.shortcut}
+                </kbd>
+              </button>
+            );
+          })}
           {filtered.length === 0 && (
             <div className="px-3 py-4 text-center">
               <span className="font-mono text-[10px] text-muted-foreground/40">
@@ -123,7 +192,7 @@ function CommandPaletteDemo() {
           </div>
           {flash && (
             <span className="font-mono text-[9px] text-primary animate-pulse">
-              ran: {flash}
+              triggered: {flash}
             </span>
           )}
         </div>
@@ -277,6 +346,8 @@ function NavScopesDemo() {
   const [pendingG, setPendingG] = useState(false);
   const [flashPage, setFlashPage] = useState<string | null>(null);
   const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isVisible = useIsVisible(containerRef);
 
   const pages = [
     { id: "home", label: "Home", key: "h" },
@@ -295,17 +366,21 @@ function NavScopesDemo() {
     []
   );
 
-  // Keyboard sequence: press g, then h/d/s/p
+  // Keyboard sequence: press g, then h/d/s/p -- only when visible
   useEffect(() => {
+    if (!isVisible) {
+      // Reset pending state when scrolling away
+      setPendingG(false);
+      return;
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Skip if focus is in an input
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
 
       const key = e.key.toLowerCase();
 
       if (pendingG) {
-        // Second key: navigate
         if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
         setPendingG(false);
         const page = pages.find((p) => p.key === key);
@@ -313,8 +388,7 @@ function NavScopesDemo() {
           e.preventDefault();
           navigate(page.id);
         }
-      } else if (key === "g") {
-        // First key: arm the sequence
+      } else if (key === "g" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         setPendingG(true);
         pendingTimeout.current = setTimeout(() => {
@@ -329,10 +403,10 @@ function NavScopesDemo() {
       if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingG, navigate]);
+  }, [pendingG, navigate, isVisible]);
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       <div className="border border-border bg-card/80 overflow-hidden">
         {/* Address bar */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-secondary/20">
@@ -340,7 +414,7 @@ function NavScopesDemo() {
           <span className="font-mono text-[10px] text-primary">{currentPage}</span>
           <div className="flex-1" />
           {pendingG ? (
-            <span className="font-mono text-[8px] text-primary animate-pulse">g pressed — now press h/d/s/p</span>
+            <span className="font-mono text-[8px] text-primary animate-pulse">{'g pressed -- now press h/d/s/p'}</span>
           ) : (
             <span className="font-mono text-[8px] text-muted-foreground/40">press g then a key, or click</span>
           )}
@@ -400,12 +474,11 @@ function NavScopesDemo() {
   );
 }
 
-// Convert a recorded combo like ["Cmd","Shift","F"] → "cmd+shift+f"
+// Convert a recorded combo like ["Cmd","Shift","F"] to "cmd+shift+f"
 function toShortcutCode(parts: string[]): string {
   return parts.map((p) => p.toLowerCase()).join("+");
 }
 
-// Convert to displayable label like "Cmd+Shift+F"
 function toDisplayCombo(parts: string[]): string {
   return parts.join("+");
 }
@@ -418,6 +491,7 @@ function RecordingDemo() {
   const [copied, setCopied] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isVisible = useIsVisible(containerRef);
 
   const handleCopy = useCallback((code: string, idx: number) => {
     navigator.clipboard.writeText(code).then(() => {
@@ -442,13 +516,12 @@ function RecordingDemo() {
   const startRecording = useCallback(() => {
     setIsRecording(true);
     setCurrentKeys([]);
-    // focus the container so it can capture keydown events
     setTimeout(() => containerRef.current?.focus(), 0);
   }, []);
 
-  // Use a global keydown listener when recording to avoid focus issues
+  // Global keydown listener when recording -- only when visible
   useEffect(() => {
-    if (!isRecording) return;
+    if (!isRecording || !isVisible) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
@@ -480,12 +553,19 @@ function RecordingDemo() {
       window.removeEventListener("keydown", handleKeyDown, true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [isRecording, stopRecording]);
+  }, [isRecording, isVisible, stopRecording]);
+
+  // Stop recording if demo scrolls out of view
+  useEffect(() => {
+    if (!isVisible && isRecording) {
+      stopRecording(currentKeys);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       <div
-        ref={containerRef}
         className={`border bg-card/80 overflow-hidden transition-colors ${
           isRecording ? "border-red-500/50" : "border-border"
         }`}
