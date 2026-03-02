@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Search, ArrowUp, ArrowDown, CornerDownLeft } from "lucide-react";
+import { Search, ArrowUp, ArrowDown, CornerDownLeft, Copy, Check } from "lucide-react";
 
 // ─── Command Palette Mini-Demo ───────────────────────────────────
 const paletteItems = [
@@ -274,23 +274,62 @@ function TextEditorDemo() {
 function NavScopesDemo() {
   const [currentPage, setCurrentPage] = useState("home");
   const [trail, setTrail] = useState<string[]>(["home"]);
+  const [pendingG, setPendingG] = useState(false);
+  const [flashPage, setFlashPage] = useState<string | null>(null);
+  const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pages = [
-    { id: "home", label: "Home", key: "H" },
-    { id: "dashboard", label: "Dashboard", key: "D" },
-    { id: "settings", label: "Settings", key: "S" },
-    { id: "profile", label: "Profile", key: "P" },
+    { id: "home", label: "Home", key: "h" },
+    { id: "dashboard", label: "Dashboard", key: "d" },
+    { id: "settings", label: "Settings", key: "s" },
+    { id: "profile", label: "Profile", key: "p" },
   ];
 
   const navigate = useCallback(
     (pageId: string) => {
-      if (pageId !== currentPage) {
-        setCurrentPage(pageId);
-        setTrail((prev) => [...prev.slice(-4), pageId]);
-      }
+      setCurrentPage(pageId);
+      setTrail((prev) => [...prev.slice(-4), pageId]);
+      setFlashPage(pageId);
+      setTimeout(() => setFlashPage(null), 600);
     },
-    [currentPage]
+    []
   );
+
+  // Keyboard sequence: press g, then h/d/s/p
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if focus is in an input
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+
+      const key = e.key.toLowerCase();
+
+      if (pendingG) {
+        // Second key: navigate
+        if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
+        setPendingG(false);
+        const page = pages.find((p) => p.key === key);
+        if (page) {
+          e.preventDefault();
+          navigate(page.id);
+        }
+      } else if (key === "g") {
+        // First key: arm the sequence
+        e.preventDefault();
+        setPendingG(true);
+        pendingTimeout.current = setTimeout(() => {
+          setPendingG(false);
+        }, 800);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      if (pendingTimeout.current) clearTimeout(pendingTimeout.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingG, navigate]);
 
   return (
     <div className="w-full">
@@ -300,7 +339,11 @@ function NavScopesDemo() {
           <span className="font-mono text-[9px] text-muted-foreground/40">/</span>
           <span className="font-mono text-[10px] text-primary">{currentPage}</span>
           <div className="flex-1" />
-          <span className="font-mono text-[8px] text-muted-foreground/40">click to navigate</span>
+          {pendingG ? (
+            <span className="font-mono text-[8px] text-primary animate-pulse">g pressed — now press h/d/s/p</span>
+          ) : (
+            <span className="font-mono text-[8px] text-muted-foreground/40">press g then a key, or click</span>
+          )}
         </div>
 
         {/* Page grid */}
@@ -311,7 +354,9 @@ function NavScopesDemo() {
               type="button"
               onClick={() => navigate(page.id)}
               className={`flex items-center justify-between px-3 py-3 transition-colors ${
-                currentPage === page.id
+                flashPage === page.id
+                  ? "bg-primary/15 text-foreground"
+                  : currentPage === page.id
                   ? "bg-primary/8 text-foreground"
                   : "bg-background text-muted-foreground hover:bg-card/60"
               }`}
@@ -319,12 +364,14 @@ function NavScopesDemo() {
               <span className="font-mono text-[11px]">{page.label}</span>
               <kbd
                 className={`font-mono text-[9px] px-1.5 py-0.5 border transition-colors ${
-                  currentPage === page.id
+                  pendingG
+                    ? "border-primary/50 text-primary bg-primary/8"
+                    : currentPage === page.id
                     ? "border-primary/30 text-primary bg-primary/5"
                     : "border-border/40 text-muted-foreground/40"
                 }`}
               >
-                g {page.key.toLowerCase()}
+                g {page.key}
               </kbd>
             </button>
           ))}
@@ -353,19 +400,38 @@ function NavScopesDemo() {
   );
 }
 
+// Convert a recorded combo like ["Cmd","Shift","F"] → "cmd+shift+f"
+function toShortcutCode(parts: string[]): string {
+  return parts.map((p) => p.toLowerCase()).join("+");
+}
+
+// Convert to displayable label like "Cmd+Shift+F"
+function toDisplayCombo(parts: string[]): string {
+  return parts.join("+");
+}
+
 // ─── Recording Mode Demo ────────────────────────────────────────
 function RecordingDemo() {
   const [isRecording, setIsRecording] = useState(false);
-  const [recorded, setRecorded] = useState<string[]>([]);
+  const [recorded, setRecorded] = useState<{ display: string; code: string }[]>([]);
   const [currentKeys, setCurrentKeys] = useState<string[]>([]);
+  const [copied, setCopied] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCopy = useCallback((code: string, idx: number) => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(idx);
+      setTimeout(() => setCopied(null), 1500);
+    });
+  }, []);
 
   const stopRecording = useCallback(
     (parts: string[]) => {
       if (parts.length > 0) {
-        const combo = parts.join("+");
-        setRecorded((prev) => [...prev.slice(-4), combo]);
+        const display = toDisplayCombo(parts);
+        const code = `$.key("${toShortcutCode(parts)}").on(() => handler())`;
+        setRecorded((prev) => [...prev.slice(-4), { display, code }]);
       }
       setIsRecording(false);
       setCurrentKeys([]);
@@ -479,17 +545,33 @@ function RecordingDemo() {
 
         {/* Recorded history */}
         {recorded.length > 0 && (
-          <div className="flex items-center gap-2 px-3 py-2 border-t border-border/60 bg-secondary/20 overflow-x-auto">
-            <span className="font-mono text-[8px] text-muted-foreground/40 shrink-0">
-              recorded:
-            </span>
-            {recorded.map((combo, i) => (
-              <kbd
-                key={`${combo}-${i}`}
-                className="font-mono text-[9px] text-foreground/70 px-1.5 py-0.5 border border-border/60 bg-background shrink-0"
+          <div className="flex flex-col border-t border-border/60 bg-secondary/10">
+            <div className="px-3 pt-2 pb-1">
+              <span className="font-mono text-[8px] text-muted-foreground/40 uppercase tracking-wider">recorded combos</span>
+            </div>
+            {recorded.map((entry, i) => (
+              <div
+                key={`${entry.display}-${i}`}
+                className="flex items-center justify-between gap-2 px-3 py-2 border-t border-border/30 first:border-t-0"
               >
-                {combo}
-              </kbd>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <kbd className="font-mono text-[10px] text-primary">{entry.display}</kbd>
+                  <span className="font-mono text-[9px] text-muted-foreground/50 truncate">{entry.code}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(entry.code, i)}
+                  className="shrink-0 flex items-center gap-1 px-2 py-1 border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                  title="Copy code"
+                >
+                  {copied === i ? (
+                    <Check className="h-3 w-3 text-primary" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                  <span className="font-mono text-[8px]">{copied === i ? "copied" : "copy"}</span>
+                </button>
+              </div>
             ))}
           </div>
         )}
