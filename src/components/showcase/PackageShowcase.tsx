@@ -9,6 +9,7 @@ import { CodeExamples } from "./CodeExamples";
 import { FooterSection } from "./FooterSection";
 import { BadgeBar } from "./BadgeBar";
 import { WorksWith } from "./WorksWith";
+import { UseCaseCards } from "./UseCaseCards";
 import { PixelHeading } from "@/components/ui/pixel-heading";
 import type { PackageConfig } from "@/config/types";
 import { ArrowRight } from "lucide-react";
@@ -88,17 +89,16 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
         </header>
 
         <div className="flex flex-col gap-0">
-          {/* Install */}
+          {/* 1. Install — first for immediate action */}
           <div id="install" className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
-            <InstallCommand packageName={config.installName} />
+            <InstallCommand
+              packageName={config.installName}
+              bundleSize={config.badges.bundleSize}
+              version={config.badges.version}
+            />
           </div>
 
-          {/* Demo */}
-          <div id="demo" className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
-            <DemoSection>{demoContent}</DemoSection>
-          </div>
-
-          {/* Works with + Badge bar */}
+          {/* 2. Works with + Badge bar */}
           <div className="px-8 py-6 flex flex-col gap-4">
             {config.worksWith && config.worksWith.length > 0 && (
               <WorksWith items={config.worksWith} />
@@ -113,7 +113,7 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
             />
           </div>
 
-          {/* Why section */}
+          {/* 3. Why section */}
           <div className="px-8 py-8 border-t border-border">
             <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-3">
               why {config.packageName}?
@@ -125,34 +125,34 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
             ))}
           </div>
 
-          {/* Feature grid */}
+          {/* 4. Feature grid */}
           <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <FeatureGrid features={config.features} />
           </div>
 
-          {/* Code examples */}
+          {/* 5. Interactive playground */}
+          <div id="demo" className="border-b border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+            <DemoSection>{demoContent}</DemoSection>
+          </div>
+
+          {/* 6. Real-world examples with interactive mini-demos */}
           <div className="px-8 py-8">
             <CodeExamples examples={config.codeExamples} />
           </div>
 
-          {/* API deep dive */}
-          <div id="api-docs" className="border-y border-dashed border-border -mx-[1px] px-8 py-8">
+          {/* 7. Use case cards (replaces the old paragraph) */}
+          <div className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
+            <UseCaseCards useCases={config.useCases} />
+          </div>
+
+          {/* 8. API deep dive */}
+          <div id="api-docs" className="px-8 py-8">
             <ApiDocs />
           </div>
 
-          {/* API reference */}
+          {/* 9. API reference */}
           <div id="api" className="border-y border-dashed border-border -mx-[1px] px-8 py-8 bg-card/30">
             <ApiTable props={config.apiProps} />
-          </div>
-
-          {/* Use cases */}
-          <div className="px-8 py-8">
-            <h2 className="font-display text-base font-bold lowercase tracking-tight text-foreground mb-2">
-              use cases
-            </h2>
-            <p className="text-xs text-muted-foreground lowercase leading-relaxed">
-              {config.useCases}
-            </p>
           </div>
 
           {/* Footer */}

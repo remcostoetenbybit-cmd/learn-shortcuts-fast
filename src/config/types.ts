@@ -25,6 +25,14 @@ export interface CodeExample {
   title: string;
   code: string;
   language?: string;
+  /** ID of the interactive mini-demo to show alongside this example */
+  demoId?: "command-palette" | "text-editor" | "nav-scopes" | "recording";
+}
+
+export interface UseCase {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 export interface Cta {
@@ -85,5 +93,5 @@ export interface PackageConfig {
   features: Feature[];
   apiProps: ApiProp[];
   codeExamples: CodeExample[];
-  useCases: string;
+  useCases: UseCase[];
 }

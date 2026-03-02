@@ -3,6 +3,8 @@ import { Check, Copy } from "lucide-react";
 
 interface InstallCommandProps {
   packageName?: string;
+  bundleSize?: string;
+  version?: string;
 }
 
 const managers = [
@@ -12,7 +14,7 @@ const managers = [
   { id: "yarn", label: "yarn", cmd: (pkg: string) => `yarn add ${pkg}` },
 ];
 
-export function InstallCommand({ packageName = "package-name" }: InstallCommandProps) {
+export function InstallCommand({ packageName = "package-name", bundleSize, version }: InstallCommandProps) {
   const [active, setActive] = useState("npm");
   const [copied, setCopied] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -89,6 +91,25 @@ export function InstallCommand({ packageName = "package-name" }: InstallCommandP
           />
         </button>
       </div>
+      {/* Size & version info */}
+      {(bundleSize || version) && (
+        <div className="flex items-center gap-3 mt-3">
+          {bundleSize && (
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+              <span className="h-1 w-1 rounded-full bg-emerald-400/60" />
+              {bundleSize} gzipped
+            </span>
+          )}
+          {version && (
+            <span className="font-mono text-[10px] text-muted-foreground/50">
+              {version}
+            </span>
+          )}
+          <span className="font-mono text-[10px] text-muted-foreground/50">
+            zero dependencies
+          </span>
+        </div>
+      )}
     </div>
   );
 }

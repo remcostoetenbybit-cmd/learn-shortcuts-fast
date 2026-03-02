@@ -86,6 +86,7 @@ function App() {
   return <div>Press ⌘+S or ⌘+K</div>
 }`,
       language: "tsx",
+      demoId: "command-palette" as const,
     },
     {
       title: "sequences & chords",
@@ -95,6 +96,7 @@ $.key("g").then("d").on(() => goToDashboard())
 // Steps can include modifiers too
 $.key("g").then("shift+d").on(() => openDebug())`,
       language: "tsx",
+      demoId: "nav-scopes" as const,
     },
     {
       title: "named scopes",
@@ -117,28 +119,49 @@ useShortcutMap({
   dashboard: { keys: ["g", "d"], handler: () => goToDashboard() },
 })`,
       language: "tsx",
+      demoId: "text-editor" as const,
     },
     {
       title: "recording mode",
       code: `const combo = await $.record({ timeoutMs: 5000 })
 // e.g. "ctrl+k" or "cmd+k"`,
       language: "tsx",
-    },
-    {
-      title: "install (cli)",
-      code: `npm install @remcostoeten/use-shortcut
-
-# or copy-paste (shadcn-style)
-npx @remcostoeten/use-shortcut init
-
-# scaffold full architecture
-npx @remcostoeten/use-shortcut scaffold`,
-      language: "bash",
+      demoId: "recording" as const,
     },
   ],
 
-  useCases:
-    "command palettes, editor shortcuts, vim-style navigation, custom keybind UIs, accessibility tooling, game controls, multi-step workflows — anywhere you need keyboard shortcuts with zero friction.",
+  useCases: [
+    {
+      title: "command palettes",
+      description: "Build Spotlight-style search UIs with Cmd+K shortcuts and fuzzy filtering.",
+      icon: "search",
+    },
+    {
+      title: "editor shortcuts",
+      description: "Save, undo, redo, format, and refactor with chained modifier combos.",
+      icon: "code",
+    },
+    {
+      title: "vim-style navigation",
+      description: "Multi-step sequences like g then d for navigation without holding keys.",
+      icon: "navigation",
+    },
+    {
+      title: "custom keybind UIs",
+      description: "Let users record and customize their own shortcuts with recording mode.",
+      icon: "settings",
+    },
+    {
+      title: "accessibility tooling",
+      description: "Keyboard-first interfaces with scope-aware shortcuts that respect form inputs.",
+      icon: "accessibility",
+    },
+    {
+      title: "multi-step workflows",
+      description: "Chain complex key sequences for power-user features and productivity tools.",
+      icon: "workflow",
+    },
+  ],
 };
 
 export default useShortcutConfig;
