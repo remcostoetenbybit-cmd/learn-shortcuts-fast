@@ -37,7 +37,7 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
       </div>
 
       {/* Centered paper column */}
-      <div className="mx-auto max-w-2xl border-x border-border min-h-screen relative z-10">
+      <main className="mx-auto max-w-2xl border-x border-border min-h-screen relative z-10">
         {/* Header */}
         <header className="border-b border-border px-8 pt-12 pb-8">
           {config.tagline && (
@@ -157,10 +157,15 @@ export function PackageShowcase({ config, demoContent }: PackageShowcaseProps) {
 
           {/* Footer */}
           <div className="px-8 border-t border-dashed border-border">
-            <FooterSection author={config.author.name} authorUrl={config.author.url} />
+            <FooterSection
+              author={config.author.name}
+              authorUrl={config.author.url}
+              version={config.badges.version}
+              sourceUrl={config.links.github}
+            />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
