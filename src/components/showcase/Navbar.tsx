@@ -1,15 +1,30 @@
-import { useState } from "react";
-import { Search, Github, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Menu, X } from "lucide-react";
 import type { NavLink as ShowcaseNavLink } from "@/config/types";
 
 interface NavbarProps {
   packageName: string;
   navLinks: ShowcaseNavLink[];
   githubUrl: string;
+  onSearchOpen: () => void;
 }
 
-export function Navbar({ packageName, navLinks, githubUrl }: NavbarProps) {
+export function Navbar({ packageName, navLinks, onSearchOpen }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Global "/" shortcut to open search (skip inputs)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+      if (e.key === "/" || ((e.metaKey || e.ctrlKey) && e.key === "k")) {
+        e.preventDefault();
+        onSearchOpen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onSearchOpen]);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
@@ -25,6 +40,8 @@ export function Navbar({ packageName, navLinks, githubUrl }: NavbarProps) {
             <a
               key={link.label}
               href={link.url}
+              target={link.url.startsWith("http") ? "_blank" : undefined}
+              rel={link.url.startsWith("http") ? "noopener noreferrer" : undefined}
               className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 py-1"
             >
               [{link.label}]
@@ -33,19 +50,28 @@ export function Navbar({ packageName, navLinks, githubUrl }: NavbarProps) {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 rounded border border-border bg-card/50 px-2.5 py-1">
-            <Search className="h-3 w-3 text-muted-foreground" />
-            <span className="font-mono text-[10px] text-muted-foreground">search...</span>
-          </div>
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+        <div className="flex items-center gap-2">
+          {/* Search trigger */}
+          <button
+            type="button"
+            onClick={onSearchOpen}
+            className="hidden md:flex items-center gap-2 border border-border bg-card/50 hover:border-primary/30 hover:bg-card/80 px-2.5 py-1 transition-colors group"
+            aria-label="Open search"
           >
-            <Github className="h-4 w-4" />
-          </a>
+            <Search className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <span className="font-mono text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">search...</span>
+            <kbd className="font-mono text-[8px] text-muted-foreground/40 px-1 border border-border/50 bg-secondary/30 ml-1">/</kbd>
+          </button>
+
+          {/* Mobile search button */}
+          <button
+            type="button"
+            onClick={onSearchOpen}
+            className="md:hidden flex items-center justify-center size-8 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Open search"
+          >
+            <Search className="h-4 w-4" />
+          </button>
 
           {/* Mobile hamburger */}
           <button
@@ -90,15 +116,13 @@ export function Navbar({ packageName, navLinks, githubUrl }: NavbarProps) {
               key={link.label}
               href={link.url}
               onClick={() => setMobileOpen(false)}
+              target={link.url.startsWith("http") ? "_blank" : undefined}
+              rel={link.url.startsWith("http") ? "noopener noreferrer" : undefined}
               className="font-mono text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
             >
               [{link.label}]
             </a>
           ))}
-          <div className="flex items-center gap-2 rounded border border-border bg-card/50 px-2.5 py-2 mt-2">
-            <Search className="h-3 w-3 text-muted-foreground" />
-            <span className="font-mono text-xs text-muted-foreground">search...</span>
-          </div>
         </div>
       </div>
     </nav>

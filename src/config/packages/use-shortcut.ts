@@ -31,13 +31,6 @@ const useShortcutConfig: PackageConfig = {
     { label: "live playground", url: "https://use-shortcuts.vercel.app/" },
   ],
 
-  worksWith: [
-    { label: "react", url: "https://react.dev/" },
-    { label: "next.js", url: "https://nextjs.org/" },
-    { label: "vite", url: "https://vitejs.dev/" },
-    { label: "remix", url: "https://remix.run/" },
-  ],
-
   badges: {
     version: "v1.3.0",
     downloads: "185/wk",
@@ -83,7 +76,7 @@ function App() {
   $.mod.key("k").on(() => search())
   $.key("/").except("typing").on(() => focusSearch())
 
-  return <div>Press ⌘+S or ⌘+K</div>
+  return <div>Press \u2318+S or \u2318+K</div>
 }`,
       language: "tsx",
       demoId: "command-palette" as const,
@@ -128,40 +121,49 @@ useShortcutMap({
       language: "tsx",
       demoId: "recording" as const,
     },
+    {
+      title: "next.js: mutations with external api",
+      code: `// app/actions/posts.ts
+"use server"
+import { useShortcut } from "@remcostoeten/use-shortcut"
+
+const $ = useShortcut()
+
+// Cmd+S triggers save via external API
+$.cmd.key("s").on(async () => {
+  const res = await fetch("https://api.example.com/posts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, content }),
+  })
+  if (!res.ok) throw new Error("Failed to create post")
+  return res.json()
+})`,
+      language: "tsx",
+    },
+    {
+      title: "next.js: mutations with drizzle",
+      code: `// app/actions/posts.ts
+"use server"
+import { db } from "@/db"
+import { posts } from "@/db/schema"
+import { useShortcut } from "@remcostoeten/use-shortcut"
+
+const $ = useShortcut()
+
+// Cmd+S triggers save via Drizzle ORM
+$.cmd.key("s").on(async () => {
+  await db.insert(posts).values({
+    title: "New Post",
+    content: "Written with shortcuts.",
+    authorId: session.user.id,
+  })
+})`,
+      language: "tsx",
+    },
   ],
 
-  useCases: [
-    {
-      title: "command palettes",
-      description: "Build Spotlight-style search UIs with Cmd+K shortcuts and fuzzy filtering.",
-      icon: "search",
-    },
-    {
-      title: "editor shortcuts",
-      description: "Save, undo, redo, format, and refactor with chained modifier combos.",
-      icon: "code",
-    },
-    {
-      title: "vim-style navigation",
-      description: "Multi-step sequences like g then d for navigation without holding keys.",
-      icon: "navigation",
-    },
-    {
-      title: "custom keybind UIs",
-      description: "Let users record and customize their own shortcuts with recording mode.",
-      icon: "settings",
-    },
-    {
-      title: "accessibility tooling",
-      description: "Keyboard-first interfaces with scope-aware shortcuts that respect form inputs.",
-      icon: "accessibility",
-    },
-    {
-      title: "multi-step workflows",
-      description: "Chain complex key sequences for power-user features and productivity tools.",
-      icon: "workflow",
-    },
-  ],
+  useCases: [],
 };
 
 export default useShortcutConfig;
